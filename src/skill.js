@@ -4,5 +4,3 @@ export class Skill {
         this.successValue = successValue;
     }
 }
-
-

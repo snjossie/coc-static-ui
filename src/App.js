@@ -1,7 +1,104 @@
 import './App.css';
 import { Skill } from './skill';
+import { DiceRoll } from '@dice-roller/rpg-dice-roller';
+import { SkillComponent } from './SkillComponent';
+import * as React from 'react';
+import Button from '@mui/material/Button';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+
+// import appIcon from './img/eldersign.svg'
+import { ReactComponent as AppIcon } from './img/eldersign.svg'
+
+import TextField from '@mui/material/TextField'
+import Stack from '@mui/material/Stack'
+
+import SvgIcon from '@mui/material/SvgIcon';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Container, { containerClasses } from '@mui/material/Container';
+
+function rollDice(successValue, openFunc) {
+
+  const result = new DiceRoll("1d100");
+  console.log(result.output);
+
+  const extremeSuccess = Math.floor(successValue * 0.2);
+  const hardSuccess = Math.floor(successValue * 0.5);
+
+  let severity = "Unknown!";
+
+  if ((successValue < 50 && result.total >= 96) || result.total === 100) {
+    severity = "Fumble";
+    console.log("Fumble");
+  } else if (result.total <= extremeSuccess) {
+    severity = "Extreme Success";
+    console.log("Extreme Success!");
+  } else if (result.total <= hardSuccess) {
+    severity = "Hard Success";
+    console.log("Hard Success!");
+  } else if (result.total <= successValue) {
+    severity = "Success";
+    console.log("Success!");
+  } else {
+    severity = "Failure";
+    console.log("Failure :(");
+  }
+
+  openFunc(`${severity} (${result.output})`);
+}
 
 function App() {
+
+  const [snackPack, setSnackPack] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
+  const [messageInfo, setMessageInfo] = React.useState(undefined);
+
+  React.useEffect(() => {
+    if (snackPack.length && !messageInfo) {
+      // Set a new snack when we don't have an active one
+      setMessageInfo({ ...snackPack[0] });
+      setSnackPack((prev) => prev.slice(1));
+      setOpen(true);
+    } else if (snackPack.length && messageInfo && open) {
+      // Close an active snack when a new one is added
+      setOpen(false);
+    }
+  }, [snackPack, messageInfo, open]);
+
+  const handleClick = (message) => () => {
+    setSnackPack((prev) => [...prev, { message, key: new Date().getTime() }]);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  const handleExited = () => {
+    setMessageInfo(undefined);
+  };
+
+  const action = (
+    <React.Fragment>
+      <Button color="secondary" size="small" onClick={handleClose}>
+        SPEND LUCK
+      </Button>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        {/* <CloseIcon fontSize="small" /> */}
+        <span>X</span>
+      </IconButton>
+    </React.Fragment>
+  );
 
   const arr = [
     new Skill("Accounting (5%)", 5),
@@ -67,115 +164,211 @@ function App() {
   ];
 
   return (
-    <div className="App">
-      <header className="App-header">
-        Cthulhu UI
-      </header>
-      <div class="container-basic-info section">
-        <div class="demographics">
-          
-            <label for="name">Name</label>
-            <input type="text" id="name" />
-            <label for="Player">Player</label>
-            <input type="text" id="Player" />
-            <label for="Occupation">Occupation</label>
-            <input type="text" id="Occupation" />
-            <label for="Age">Age</label>
-            <input type="text" id="Age" />
-            <label for="Sex">Sex</label>
-            <input type="text" id="Sex" />
-            <label for="Archetype">Archetype</label>
-            <input type="text" id="Archetype" />
-            <label for="Residence">Residence</label>
-            <input type="text" id="Residence" />
-            <label for="Birthplace">Birthplace</label>
-            <input type="text" id="Birthplace" />
-          
-        </div>
-        <div class="characteristics">
-          <div class="characteristic">
-            <div class="chr-nme">STR</div>
-            <div class="chr-success"><input type="button" value="40" /></div>
-            <div class="chr-bigsuccess">20</div>
-            <div class="chr-extremesuccess">8</div>
-          </div>
-          <div class="characteristic">
-            <div class="chr-nme">CON</div>
-            <div class="chr-success"><input type="button" value="40" /></div>
-            <div class="chr-bigsuccess">20</div>
-            <div class="chr-extremesuccess">8</div>
-          </div>
-          <div class="characteristic">
-            <div class="chr-nme">SIZ</div>
-            <div class="chr-success"><input type="button" value="40" /></div>
-            <div class="chr-bigsuccess">20</div>
-            <div class="chr-extremesuccess">8</div>
-          </div>
-          <div class="characteristic">
-            <div class="chr-nme">DEX</div>
-            <div class="chr-success"><input type="button" value="40" /></div>
-            <div class="chr-bigsuccess">20</div>
-            <div class="chr-extremesuccess">8</div>
-          </div>
-          <div class="characteristic">
-            <div class="chr-nme">APP</div>
-            <div class="chr-success"><input type="button" value="40" /></div>
-            <div class="chr-bigsuccess">20</div>
-            <div class="chr-extremesuccess">8</div>
-          </div>
-          <div class="characteristic">
-            <div class="chr-nme">EDU</div>
-            <div class="chr-success"><input type="button" value="40" /></div>
-            <div class="chr-bigsuccess">20</div>
-            <div class="chr-extremesuccess">8</div>
-          </div>
-          <div class="characteristic">
-            <div class="chr-nme">INT</div>
-            <div class="chr-success"><input type="button" value="40" /></div>
-            <div class="chr-bigsuccess">20</div>
-            <div class="chr-extremesuccess">8</div>
-          </div>
-          <div class="characteristic">
-            <div class="chr-nme">POW</div>
-            <div class="chr-success"><input type="button" value="40" /></div>
-            <div class="chr-bigsuccess">20</div>
-            <div class="chr-extremesuccess">8</div>
-          </div>
-          <div class="characteristic">
-            <div class="chr-nme" style={{fontSize: "x-large"}}>Move Rate</div>
-            <div class="chr-success">7</div>
-          </div>
-        </div>
-      </div>
+    <React.Fragment>
+      <div className="App">
+        <AppBar position="static">
+          <Container maxWidth="xl">
+            <Toolbar disableGutters variant="dense">
+              <SvgIcon component={AppIcon} inheritViewBox />
+              <Typography
+                variant="h6"
+                noWrap
+                component="div"
+                sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+              >
+                Call of Cthulhu
+              </Typography>
+            </Toolbar>
+          </Container>
+        </AppBar>
 
-      <div class="section">
-        <h1>HP, Luck, Sanity, MP go here</h1>
-      </div>
-
-      <div class="section">
-        <h1>Hero Skills</h1>
-        <div class="skills-container">
-          { arr.map((x, i) => 
-            <div key={x.name}>
-              <div class="name"><input type="checkbox" value="{x.name}" />{x.name}</div> 
-              <div class="skill-values">
-                <input class="success" type="button" value={x.successValue} />
-                <span class="bigsuccess">{Math.floor(x.successValue * 0.5)}</span>
-                <span class="extremesuccess">{Math.floor(x.successValue * 0.2)}</span>
-              </div>
+        <div className="container-basic-info section">
+          <Stack>
+            <TextField
+              label="Name"
+              size="small"
+              margin="dense"
+            />
+            <TextField
+              label="Occupation"
+              size="small"
+              margin="dense"
+            />
+            <TextField
+              label="Age"
+              size="small"
+              margin="dense"
+            />
+            <TextField
+              label="Sex"
+              size="small"
+              margin="dense"
+            />
+            <TextField
+              label="Archetype"
+              size="small"
+              margin="dense"
+            />
+            <TextField
+              label="Residence"
+              size="small"
+              margin="dense"
+            />
+            <TextField
+              label="Birthplace"
+              size="small"
+              margin="dense"
+            />
+          </Stack>
+          <div className="characteristics">
+            <div className="characteristic">
+              <div className="chr-nme">STR</div>
+              <div className="chr-success"><input type="button" value="40" /></div>
+              <div className="chr-bigsuccess">20</div>
+              <div className="chr-extremesuccess">8</div>
             </div>
-          )}
+            <div className="characteristic">
+              <div className="chr-nme">CON</div>
+              <div className="chr-success"><input type="button" value="40" /></div>
+              <div className="chr-bigsuccess">20</div>
+              <div className="chr-extremesuccess">8</div>
+            </div>
+            <div className="characteristic">
+              <div className="chr-nme">SIZ</div>
+              <div className="chr-success"><input type="button" value="40" /></div>
+              <div className="chr-bigsuccess">20</div>
+              <div className="chr-extremesuccess">8</div>
+            </div>
+            <div className="characteristic">
+              <div className="chr-nme">DEX</div>
+              <div className="chr-success"><input type="button" value="40" /></div>
+              <div className="chr-bigsuccess">20</div>
+              <div className="chr-extremesuccess">8</div>
+            </div>
+            <div className="characteristic">
+              <div className="chr-nme">APP</div>
+              <div className="chr-success"><input type="button" value="40" /></div>
+              <div className="chr-bigsuccess">20</div>
+              <div className="chr-extremesuccess">8</div>
+            </div>
+            <div className="characteristic">
+              <div className="chr-nme">EDU</div>
+              <div className="chr-success"><input type="button" value="40" /></div>
+              <div className="chr-bigsuccess">20</div>
+              <div className="chr-extremesuccess">8</div>
+            </div>
+            <div className="characteristic">
+              <div className="chr-nme">INT</div>
+              <div className="chr-success"><input type="button" value="40" /></div>
+              <div className="chr-bigsuccess">20</div>
+              <div className="chr-extremesuccess">8</div>
+            </div>
+            <div className="characteristic">
+              <div className="chr-nme">POW</div>
+              <div className="chr-success"><input type="button" value="40" /></div>
+              <div className="chr-bigsuccess">20</div>
+              <div className="chr-extremesuccess">8</div>
+            </div>
+            <div className="characteristic">
+              <div className="chr-nme" style={{ fontSize: "x-large" }}>Move Rate</div>
+              <div className="chr-success">7</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="section">
+          <Stack direction="row" spacing={5} justifyContent="space-between">
+            <div>
+              <TextField
+                label="HP"
+                size="small"
+                margin="dense"
+                sx={{ width: "5em" }}
+              />
+              <span>/</span>
+              <TextField
+                label="Max HP"
+                size="small"
+                margin="dense"
+                sx={{ width: "5em" }}
+              />
+            </div>
+            <div>
+              <TextField
+                label="Sanity"
+                size="small"
+                margin="dense"
+                sx={{ width: "5em" }}
+              />
+              <span>/</span>
+              <TextField
+                label="Max Sanity"
+                size="small"
+                margin="dense"
+                sx={{ width: "5em" }}
+              />
+            </div>
+            <div>
+              <TextField
+                label="MP"
+                size="small"
+                margin="dense"
+                sx={{ width: "5em" }}
+              />
+              <span>/</span>
+              <TextField
+                label="Max MP"
+                size="small"
+                margin="dense"
+                sx={{ width: "5em" }}
+              />
+            </div>
+            <div>
+              <TextField
+                label="Luck"
+                size="small"
+                margin="dense"
+                sx={{ width: "5em" }}
+              />
+            </div>
+          </Stack>
+
+
+        </div>
+
+        <div className="section">
+          <h1>Hero Skills</h1>
+          <div className="skills-container">
+            {arr.map((x, i) =>
+              <SkillComponent
+                key={x.name}
+                name={x.name}
+                successValue={x.successValue}
+                rollDice={rollDice}
+                openFunc={message => handleClick(message)()} />
+            )}
+          </div>
+        </div>
+        <div className="section">
+          <h1>Weapons go here</h1>
+        </div>
+
+        <div className="section">
+          <h1>Credit/Pulp Skills go here</h1>
+        </div>
+        <div>
+          <Snackbar
+            open={open}
+            TransitionProps={{ onExited: handleExited }}
+            autoHideDuration={null}
+            onClose={handleClose}
+            message={messageInfo ? messageInfo.message : undefined}
+            action={action}
+          />
         </div>
       </div>
+    </React.Fragment>
 
-      <div class="section">
-        <h1>Weapons go here</h1>
-      </div>
-
-      <div class="section">
-        <h1>Credit/Pulp Skills go here</h1>
-      </div>
-    </div>
   );
 }
 
