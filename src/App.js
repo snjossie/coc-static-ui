@@ -23,11 +23,32 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import { rollDice } from './dice/DiceFuncs';
 
+import axios from 'axios';
+
 function App() {
 
   const [snackPack, setSnackPack] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [messageInfo, setMessageInfo] = React.useState(undefined);
+
+  const [investigator, setInvestigator] = React.useState({name: "Sample"});
+
+  const handleChange = (event) => {
+    setInvestigator({name: event.target.value, ...investigator});
+  };
+
+  // React.useEffect(() => reset)
+
+  const doGet = async () => {
+
+    const response = await axios.get(
+      "https://localhost:7043/Investigator/3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    );
+    
+    console.log(response);
+    setInvestigator(response.data);
+
+  }
 
   React.useEffect(() => {
     if (snackPack.length && !messageInfo) {
@@ -59,10 +80,10 @@ function App() {
 
   const action = (
     <React.Fragment>
-      { messageInfo?.message?.luckAmount > 0 &&
-      <Button color="secondary" size="small" onClick={handleClose}>
-        SPEND {messageInfo?.message?.luckAmount} LUCK
-      </Button>
+      {messageInfo?.message?.luckAmount > 0 &&
+        <Button color="secondary" size="small" onClick={handleClose}>
+          SPEND {messageInfo?.message?.luckAmount} LUCK
+        </Button>
       }
       <IconButton
         size="small"
@@ -70,7 +91,7 @@ function App() {
         color="inherit"
         onClick={handleClose}
       >
-      <CloseIcon fontSize="small" />
+        <CloseIcon fontSize="small" />
       </IconButton>
     </React.Fragment>
   );
@@ -184,43 +205,59 @@ function App() {
               >
                 Call of Cthulhu
               </Typography>
+              <Button onClick={doGet}>Click to Call API</Button>
             </Toolbar>
           </Container>
         </AppBar>
-
+        <Snackbar
+            open={open}
+            TransitionProps={{ onExited: handleExited }}
+            autoHideDuration={null}
+            onClose={handleClose}
+            message={messageInfo ? `${messageInfo.message.type} (${messageInfo.message.rollSummary})` : undefined}
+            action={action}
+          />
         <div className="container-basic-info section">
           <Stack>
             <TextField
+              value={investigator?.name ?? ""}
               label="Name"
               size="small"
               margin="dense"
+              onChange={handleChange}
             />
             <TextField
+              value={investigator?.occupation ?? ""}
               label="Occupation"
               size="small"
               margin="dense"
             />
             <TextField
+              value={investigator?.age ?? ""}
               label="Age"
               size="small"
               margin="dense"
             />
             <TextField
+              value={investigator?.sex ?? ""}
               label="Sex"
               size="small"
               margin="dense"
             />
             <TextField
+              value={investigator?.archetype ?? ""}
               label="Archetype"
               size="small"
               margin="dense"
             />
             <TextField
+              value={investigator?.residence ?? ""}
               label="Residence"
               size="small"
               margin="dense"
             />
             <TextField
+              value={investigator?.birthplace ?? ""}
               label="Birthplace"
               size="small"
               margin="dense"
@@ -228,7 +265,7 @@ function App() {
           </Stack>
           <div>
 
-          <Grid container columnSpacing={0} justifyContent="space-evenly">
+            <Grid container columnSpacing={0} justifyContent="space-evenly">
               {characteristics.map((x, i) =>
                 <Grid item xs={3} key={`characteristic_column_${i + 1}`}>
                   <Stack spacing={1}>
@@ -346,16 +383,6 @@ function App() {
 
         <div className="section">
           <h1>Credit/Pulp Skills go here</h1>
-        </div>
-        <div>
-          <Snackbar
-            open={open}
-            TransitionProps={{ onExited: handleExited }}
-            autoHideDuration={null}
-            onClose={handleClose}
-            message={messageInfo ? `${messageInfo.message.type} (${messageInfo.message.rollSummary})` : undefined}
-            action={action}
-          />
         </div>
       </div>
     </React.Fragment>
