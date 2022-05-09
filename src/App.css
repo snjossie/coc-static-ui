@@ -5,7 +5,9 @@
   grid-auto-rows: minmax(100px, auto);
   
 }
-
+.banding {
+  background: #222;
+}
 .demographics {
   grid-column: 1;
   grid-row: 1;
@@ -105,11 +107,6 @@
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   gap: 0.1em;
-}
-
-.skill-values input {
-  font-size: larger;
-  min-width: 2em;
 }
 
 .skill-values .success {

@@ -1,6 +1,5 @@
 import './App.css';
 import { Skill } from './skill';
-import { DiceRoll } from '@dice-roller/rpg-dice-roller';
 import { SkillComponent } from './SkillComponent';
 import * as React from 'react';
 import Button from '@mui/material/Button';
@@ -18,36 +17,11 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import { Grid } from '@mui/material';
 
-function rollDice(successValue, openFunc) {
+import CloseIcon from '@mui/icons-material/Close';
 
-  const result = new DiceRoll("1d100");
-  console.log(result.output);
-
-  const extremeSuccess = Math.floor(successValue * 0.2);
-  const hardSuccess = Math.floor(successValue * 0.5);
-
-  let severity = "Unknown!";
-
-  if ((successValue < 50 && result.total >= 96) || result.total === 100) {
-    severity = "Fumble";
-    console.log("Fumble");
-  } else if (result.total <= extremeSuccess) {
-    severity = "Extreme Success";
-    console.log("Extreme Success!");
-  } else if (result.total <= hardSuccess) {
-    severity = "Hard Success";
-    console.log("Hard Success!");
-  } else if (result.total <= successValue) {
-    severity = "Success";
-    console.log("Success!");
-  } else {
-    severity = "Failure";
-    console.log("Failure :(");
-  }
-
-  openFunc(`${severity} (${result.output})`);
-}
+import { rollDice } from './dice/DiceFuncs';
 
 function App() {
 
@@ -85,17 +59,18 @@ function App() {
 
   const action = (
     <React.Fragment>
+      { messageInfo?.message?.luckAmount > 0 &&
       <Button color="secondary" size="small" onClick={handleClose}>
-        SPEND LUCK
+        SPEND {messageInfo?.message?.luckAmount} LUCK
       </Button>
+      }
       <IconButton
         size="small"
         aria-label="close"
         color="inherit"
         onClick={handleClose}
       >
-        {/* <CloseIcon fontSize="small" /> */}
-        <span>X</span>
+      <CloseIcon fontSize="small" />
       </IconButton>
     </React.Fragment>
   );
@@ -163,6 +138,37 @@ function App() {
     new Skill("(blank 4)", 0)
   ];
 
+  const characteristics = [
+    [
+      new Skill("STR", 40),
+      new Skill("CON", 40),
+      new Skill("SIZ", 40)
+    ],
+    [
+      new Skill("DEX", 40),
+      new Skill("APP", 40),
+      new Skill("EDU", 40)
+    ],
+    [
+      new Skill("INT", 40),
+      new Skill("POW", 40),
+      new Skill("Movement", 7)
+    ]
+  ]
+
+  const perChunk = 15;
+  const skills = arr.reduce((resultArray, item, index) => {
+    const chunkIndex = Math.floor(index / perChunk)
+
+    if (!resultArray[chunkIndex]) {
+      resultArray[chunkIndex] = [] // start a new chunk
+    }
+
+    resultArray[chunkIndex].push(item)
+
+    return resultArray
+  }, []);
+
   return (
     <React.Fragment>
       <div className="App">
@@ -220,117 +226,91 @@ function App() {
               margin="dense"
             />
           </Stack>
-          <div className="characteristics">
-            <div className="characteristic">
-              <div className="chr-nme">STR</div>
-              <div className="chr-success"><input type="button" value="40" /></div>
-              <div className="chr-bigsuccess">20</div>
-              <div className="chr-extremesuccess">8</div>
-            </div>
-            <div className="characteristic">
-              <div className="chr-nme">CON</div>
-              <div className="chr-success"><input type="button" value="40" /></div>
-              <div className="chr-bigsuccess">20</div>
-              <div className="chr-extremesuccess">8</div>
-            </div>
-            <div className="characteristic">
-              <div className="chr-nme">SIZ</div>
-              <div className="chr-success"><input type="button" value="40" /></div>
-              <div className="chr-bigsuccess">20</div>
-              <div className="chr-extremesuccess">8</div>
-            </div>
-            <div className="characteristic">
-              <div className="chr-nme">DEX</div>
-              <div className="chr-success"><input type="button" value="40" /></div>
-              <div className="chr-bigsuccess">20</div>
-              <div className="chr-extremesuccess">8</div>
-            </div>
-            <div className="characteristic">
-              <div className="chr-nme">APP</div>
-              <div className="chr-success"><input type="button" value="40" /></div>
-              <div className="chr-bigsuccess">20</div>
-              <div className="chr-extremesuccess">8</div>
-            </div>
-            <div className="characteristic">
-              <div className="chr-nme">EDU</div>
-              <div className="chr-success"><input type="button" value="40" /></div>
-              <div className="chr-bigsuccess">20</div>
-              <div className="chr-extremesuccess">8</div>
-            </div>
-            <div className="characteristic">
-              <div className="chr-nme">INT</div>
-              <div className="chr-success"><input type="button" value="40" /></div>
-              <div className="chr-bigsuccess">20</div>
-              <div className="chr-extremesuccess">8</div>
-            </div>
-            <div className="characteristic">
-              <div className="chr-nme">POW</div>
-              <div className="chr-success"><input type="button" value="40" /></div>
-              <div className="chr-bigsuccess">20</div>
-              <div className="chr-extremesuccess">8</div>
-            </div>
-            <div className="characteristic">
-              <div className="chr-nme" style={{ fontSize: "x-large" }}>Move Rate</div>
-              <div className="chr-success">7</div>
-            </div>
+          <div>
+
+          <Grid container columnSpacing={0} justifyContent="space-evenly">
+              {characteristics.map((x, i) =>
+                <Grid item xs={3} key={`characteristic_column_${i + 1}`}>
+                  <Stack spacing={1}>
+                    {x.map((item, j) =>
+                      <SkillComponent
+                        key={item.name}
+                        name={item.name}
+                        className={j % 2 === 1 ? "banding" : null}
+                        successValue={item.successValue}
+                        skill={item}
+                        rollDice={rollDice}
+                        openFunc={message => handleClick(message)()} />
+                    )}
+
+                  </Stack>
+                </Grid>
+              )}
+            </Grid>
+
           </div>
         </div>
 
         <div className="section">
           <Stack direction="row" spacing={5} justifyContent="space-between">
-            <div>
+            <Stack direction="row">
               <TextField
                 label="HP"
                 size="small"
                 margin="dense"
                 sx={{ width: "5em" }}
               />
-              <span>/</span>
+              <Typography sx={{ alignSelf: "center" }}>/</Typography>
               <TextField
                 label="Max HP"
                 size="small"
                 margin="dense"
                 sx={{ width: "5em" }}
               />
-            </div>
-            <div>
+            </Stack>
+            <Stack direction="row">
               <TextField
-                label="Sanity"
+                label="HP"
                 size="small"
                 margin="dense"
                 sx={{ width: "5em" }}
               />
-              <span>/</span>
+              <Typography sx={{ alignSelf: "center" }}>/</Typography>
               <TextField
-                label="Max Sanity"
+                label="Max HP"
                 size="small"
                 margin="dense"
                 sx={{ width: "5em" }}
               />
-            </div>
-            <div>
+            </Stack><Stack direction="row">
               <TextField
-                label="MP"
+                label="HP"
                 size="small"
                 margin="dense"
                 sx={{ width: "5em" }}
               />
-              <span>/</span>
+              <Typography sx={{ alignSelf: "center" }}>/</Typography>
               <TextField
-                label="Max MP"
+                label="Max HP"
                 size="small"
                 margin="dense"
                 sx={{ width: "5em" }}
               />
-            </div>
-            <div>
+            </Stack><Stack direction="row">
               <TextField
-                label="Luck"
+                label="HP"
                 size="small"
                 margin="dense"
                 sx={{ width: "5em" }}
               />
-            </div>
+              <Typography sx={{ alignSelf: "center" }}>/</Typography>
+              <TextField
+                label="Max HP"
+                size="small"
+                margin="dense"
+                sx={{ width: "5em" }}
+              />
+            </Stack>
           </Stack>
 
 
@@ -338,15 +318,26 @@ function App() {
 
         <div className="section">
           <h1>Hero Skills</h1>
-          <div className="skills-container">
-            {arr.map((x, i) =>
-              <SkillComponent
-                key={x.name}
-                name={x.name}
-                successValue={x.successValue}
-                rollDice={rollDice}
-                openFunc={message => handleClick(message)()} />
-            )}
+          <div>
+            <Grid container columnSpacing={2} justifyContent="space-evenly">
+              {skills.map((x, i) =>
+                <Grid item xs={3} key={`column_${i + 1}`}>
+                  <Stack spacing={1}>
+                    {x.map((item, j) =>
+                      <SkillComponent
+                        key={item.name}
+                        name={item.name}
+                        className={j % 2 === 1 ? "banding" : null}
+                        successValue={item.successValue}
+                        skill={item}
+                        rollDice={rollDice}
+                        openFunc={message => handleClick(message)()} />
+                    )}
+
+                  </Stack>
+                </Grid>
+              )}
+            </Grid>
           </div>
         </div>
         <div className="section">
@@ -362,7 +353,7 @@ function App() {
             TransitionProps={{ onExited: handleExited }}
             autoHideDuration={null}
             onClose={handleClose}
-            message={messageInfo ? messageInfo.message : undefined}
+            message={messageInfo ? `${messageInfo.message.type} (${messageInfo.message.rollSummary})` : undefined}
             action={action}
           />
         </div>
