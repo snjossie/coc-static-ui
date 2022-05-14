@@ -1,54 +1,71 @@
 import './App.css';
-import { Skill } from './skill';
-import { SkillComponent } from './SkillComponent';
+
 import * as React from 'react';
+
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import Button from '@mui/material/Button';
-import Snackbar from '@mui/material/Snackbar';
-import IconButton from '@mui/material/IconButton';
-
-// import appIcon from './img/eldersign.svg'
-import { ReactComponent as AppIcon } from './img/eldersign.svg'
-
-import TextField from '@mui/material/TextField'
-import Stack from '@mui/material/Stack'
-
-import SvgIcon from '@mui/material/SvgIcon';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { Grid } from '@mui/material';
-
+import CasinoIcon from '@mui/icons-material/Casino';
 import CloseIcon from '@mui/icons-material/Close';
-
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import { Grid } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import { InputAdornment } from '@mui/material';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import { ResourcePanel } from './ResourcePanel';
+import { SkillComponent } from './SkillComponent';
+import Snackbar from '@mui/material/Snackbar';
+import Stack from '@mui/material/Stack'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography';
+import { checkIfValidUUID } from './util/UuidFuncs';
+import { chunk } from './util/ArrayFuncs';
+import { getInvestigator } from './InvestigatorService';
 import { rollDice } from './dice/DiceFuncs';
+import { useParams } from 'react-router-dom'
 
-import axios from 'axios';
+// import { SkillsPanel } from './SkillsPanel';
 
 function App() {
+
+  const { id } = useParams();
 
   const [snackPack, setSnackPack] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [messageInfo, setMessageInfo] = React.useState(undefined);
 
-  const [investigator, setInvestigator] = React.useState({name: "Sample"});
+  const [investigator, setInvestigator] = React.useState({ name: "", age: "", sex: "", archetype: "", birthplace: "", occupation: "" });
+  const [skills, setSkills] = React.useState({});
 
-  const handleChange = (event) => {
-    setInvestigator({name: event.target.value, ...investigator});
+  const handleChange = event => {
+    const name = event.target.name;
+    const value = event.target.value;
+
+    setInvestigator({ ...investigator, [name]: value });
   };
 
-  // React.useEffect(() => reset)
+  React.useEffect(() => {
+    const doGet = async () => {
 
-  const doGet = async () => {
+      if (!checkIfValidUUID(id)) {
+        console.log(`${id} is not a valid UUID`);
+        return;
+      }
 
-    const response = await axios.get(
-      "https://localhost:7043/Investigator/3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    );
-    
-    console.log(response);
-    setInvestigator(response.data);
+      const response = await getInvestigator(id);
 
-  }
+      let unwrap = ({ name, occupation, age, sex, archetype, residence, birthplace }) =>
+        ({ name, occupation, age, sex, archetype, residence, birthplace });
+
+      console.log(response);
+      const data = unwrap(response.data);
+
+      setInvestigator(data);
+      setSkills(response.data);
+    };
+
+    doGet().catch(console.error);
+  }, [id]);
 
   React.useEffect(() => {
     if (snackPack.length && !messageInfo) {
@@ -96,177 +113,29 @@ function App() {
     </React.Fragment>
   );
 
-  const arr = [
-    new Skill("Accounting (5%)", 5),
-    new Skill("Appraise (5%)", 5),
-    new Skill("Archaeology (1%)", 1),
-    new Skill("Art/Craft (5%)", 40),
-    new Skill("Art/Craft", 30),
-    new Skill("Charm (15%)", 45),
-    new Skill("Climb (20%)", 20),
-    new Skill("Computer Use (0%)", 0),
-    new Skill("Credit Rating (0%)", 70),
-    new Skill("Cthulhu Mythos (0%)", 0),
-    new Skill("Demolitions (1%)", 1),
-    new Skill("Disguise (5%)", 45),
-    new Skill("Diving (1%)", 1),
-    new Skill("Dodge (half DEX)", 45),
-    new Skill("Drive Auto (20%)", 20),
-    new Skill("Elec. Repair (10%)", 10),
-    new Skill("Fast Talk (5%)", 5),
-    new Skill("Fighting (Brawl) (25%)", 25),
-    new Skill("Fighting", 0),
-    new Skill("Fighting 2", 1),
-    new Skill("Firearms (Handgun) (20%)", 20),
-    new Skill("Firearms (Rifle/Shotgun) (25%)", 25),
-    new Skill("Firearms (SMB) (15%)", 15),
-    new Skill("Firearms", 1),
-    new Skill("First Aid (30%)", 30),
-    new Skill("History (5%)", 30),
-    new Skill("Intimidate (15%)", 15),
-    new Skill("Jump (20%)", 20),
-    new Skill("Language (1%)", 25),
-    new Skill("Language", 20),
-    new Skill("Language (Own) (EDU)", 70),
-    new Skill("Law (5%)", 0),
-    new Skill("Library Use (20%)", 5),
-    new Skill("Listen (20%)", 20),
-    new Skill("Locksmith (1%)", 40),
-    new Skill("Mech. Repair (10%)", 10),
-    new Skill("Medicine (1%)", 1),
-    new Skill("Natural World (10%)", 10),
-    new Skill("Navigate (10%)", 10),
-    new Skill("Occult (5%)", 40),
-    new Skill("Op. Hv. Machine (1%)", 1),
-    new Skill("Persuade (10%)", 45),
-    new Skill("Pilot (1%)", 1),
-    new Skill("Psychoanalysis (1%)", 40),
-    new Skill("Psychology (10%)", 30),
-    new Skill("Read Lips (1%)", 1),
-    new Skill("Ride (5%)", 5),
-    new Skill("Science (1%)", 1),
-    new Skill("Science", 1),
-    new Skill("Sleight of Hand (10%)", 50),
-    new Skill("Spot Hidden (25%)", 35),
-    new Skill("Stealth (20%)", 20),
-    new Skill("Survival (10%)", 10),
-    new Skill("Swim (20%)", 20),
-    new Skill("Throw (20%)", 20),
-    new Skill("Track (10%)", 10),
-    new Skill("Telekinesis", 70),
-    new Skill("(blank 2)", 0),
-    new Skill("(blank 3)", 0),
-    new Skill("(blank 4)", 0)
-  ];
-
-  const characteristics = [
-    [
-      new Skill("STR", 40),
-      new Skill("CON", 40),
-      new Skill("SIZ", 40)
-    ],
-    [
-      new Skill("DEX", 40),
-      new Skill("APP", 40),
-      new Skill("EDU", 40)
-    ],
-    [
-      new Skill("INT", 40),
-      new Skill("POW", 40),
-      new Skill("Movement", 7)
-    ]
-  ]
-
-  const perChunk = 15;
-  const skills = arr.reduce((resultArray, item, index) => {
-    const chunkIndex = Math.floor(index / perChunk)
-
-    if (!resultArray[chunkIndex]) {
-      resultArray[chunkIndex] = [] // start a new chunk
-    }
-
-    resultArray[chunkIndex].push(item)
-
-    return resultArray
-  }, []);
+  const characteristicsPerColumn = 3;
+  const skillsPerColumn = 15;
 
   return (
     <React.Fragment>
       <div className="App">
-        <AppBar position="static">
-          <Container maxWidth="xl">
-            <Toolbar disableGutters variant="dense">
-              <SvgIcon component={AppIcon} inheritViewBox />
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
-              >
-                Call of Cthulhu
-              </Typography>
-              <Button onClick={doGet}>Click to Call API</Button>
-            </Toolbar>
-          </Container>
-        </AppBar>
         <Snackbar
-            open={open}
-            TransitionProps={{ onExited: handleExited }}
-            autoHideDuration={null}
-            onClose={handleClose}
-            message={messageInfo ? `${messageInfo.message.type} (${messageInfo.message.rollSummary})` : undefined}
-            action={action}
-          />
+          open={open}
+          TransitionProps={{ onExited: handleExited }}
+          autoHideDuration={null}
+          onClose={handleClose}
+          message={messageInfo ? `${messageInfo.message.type} (${messageInfo.message.rollSummary})` : undefined}
+          action={action}
+        />
         <div className="container-basic-info section">
-          <Stack>
-            <TextField
-              value={investigator?.name ?? ""}
-              label="Name"
-              size="small"
-              margin="dense"
-              onChange={handleChange}
-            />
-            <TextField
-              value={investigator?.occupation ?? ""}
-              label="Occupation"
-              size="small"
-              margin="dense"
-            />
-            <TextField
-              value={investigator?.age ?? ""}
-              label="Age"
-              size="small"
-              margin="dense"
-            />
-            <TextField
-              value={investigator?.sex ?? ""}
-              label="Sex"
-              size="small"
-              margin="dense"
-            />
-            <TextField
-              value={investigator?.archetype ?? ""}
-              label="Archetype"
-              size="small"
-              margin="dense"
-            />
-            <TextField
-              value={investigator?.residence ?? ""}
-              label="Residence"
-              size="small"
-              margin="dense"
-            />
-            <TextField
-              value={investigator?.birthplace ?? ""}
-              label="Birthplace"
-              size="small"
-              margin="dense"
-            />
-          </Stack>
-          <div>
+          <ResourcePanel
+            investigator={investigator ?? {}}
+            onChange={handleChange}
+          />
 
+          <div>
             <Grid container columnSpacing={0} justifyContent="space-evenly">
-              {characteristics.map((x, i) =>
+              {chunk(skills?.characteristics, characteristicsPerColumn)?.map((x, i) =>
                 <Grid item xs={3} key={`characteristic_column_${i + 1}`}>
                   <Stack spacing={1}>
                     {x.map((item, j) =>
@@ -284,80 +153,133 @@ function App() {
                 </Grid>
               )}
             </Grid>
+            
+            <Grid container columnSpacing={0} justifyContent="space-evenly">
+              <Grid item xs={3}>
+                <TextField
+                                   InputProps={{startAdornment: (
+                                    <InputAdornment position="start">
+                                     <DirectionsRunIcon />
+                                    </InputAdornment>
+                                  )}}
+                  label="Move Rate"
+                  value={skills?.moveRate ?? ""}
+                  size="small"
+                  margin="dense"
+                  sx={{ width: "5em" }}
+                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                  onChange={handleChange}
+                />
+              </Grid>
+              
+              <Grid item xs={3}>
+                <Stack direction="row">
+                <TextField
+                                   InputProps={{startAdornment: (
+                                    <InputAdornment position="start">
+                                     <CasinoIcon color="success" />
+                                    </InputAdornment>
+                                  )}}
+                  label="Luck"
+                  value={skills?.luck?.current ?? ""}
+                  size="small"
+                  margin="dense"
+                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                  sx={{ width: "5em" }}
+                />
+                </Stack>
+              </Grid>
+
+              <Grid item xs={3}>
+                <Stack>
+                <Stack direction="row">
+                  
+                  <TextField
+                    InputProps={{startAdornment: (
+                      <InputAdornment position="start">
+                        <FavoriteIcon color='error' />
+                      </InputAdornment>
+                    )}}
+                    label="HP"
+                    value={skills?.healthPoints?.current ?? ""}
+                    size="small"
+                    margin="dense"
+                    sx={{ minWidth: "5em" }}
+                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                    onChange={handleChange}
+                  />
+                  <Typography sx={{ alignSelf: "center" }}>/</Typography>
+                  <TextField
+                    label="Max HP"
+                    value={skills?.healthPoints?.max ?? ""}
+                    size="small"
+                    margin="dense"
+                    sx={{ minWidth: "5em" }}
+                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                    onChange={handleChange}
+                  />
+                </Stack>
+                <Stack direction="row">
+                  <TextField
+                    InputProps={{startAdornment: (
+                      <InputAdornment position="start">
+                        <PsychologyIcon color="info" />
+                      </InputAdornment>
+                    )}}
+                    label="Sanity"
+                    value={skills?.sanityPoints?.current ?? ""}
+                    size="small"
+                    margin="dense"
+                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                    sx={{ minWidth: "5em" }}
+                  />
+                  <Typography sx={{ alignSelf: "center" }}>/</Typography>
+                  <TextField
+                    label="Max Sanity"
+                    value={skills?.sanityPoints?.current ?? ""}
+                    size="small"
+                    margin="dense"
+                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                    sx={{ minWidth: "5em" }}
+                  />
+                </Stack>
+                <Stack direction="row">
+                
+                  <TextField
+                   InputProps={{startAdornment: (
+                    <InputAdornment position="start">
+                     <AutoFixHighIcon color="secondary" />
+                    </InputAdornment>
+                  )}}
+                    label="MP"
+                    value={skills?.magicPoints?.current ?? ""}
+                    size="small"
+                    margin="dense"
+                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                    sx={{ minWidth: "5em" }}
+                  />
+                  <Typography sx={{ alignSelf: "center" }}>/</Typography>
+                  <TextField
+                    label="Max MP"
+                    value={skills?.magicPoints?.current ?? ""}
+                    size="small"
+                    margin="dense"
+                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                    sx={{ minWidth: "5em" }}
+                  />
+                </Stack>
+                </Stack>
+              </Grid>
+            </Grid>
 
           </div>
-        </div>
-
-        <div className="section">
-          <Stack direction="row" spacing={5} justifyContent="space-between">
-            <Stack direction="row">
-              <TextField
-                label="HP"
-                size="small"
-                margin="dense"
-                sx={{ width: "5em" }}
-              />
-              <Typography sx={{ alignSelf: "center" }}>/</Typography>
-              <TextField
-                label="Max HP"
-                size="small"
-                margin="dense"
-                sx={{ width: "5em" }}
-              />
-            </Stack>
-            <Stack direction="row">
-              <TextField
-                label="HP"
-                size="small"
-                margin="dense"
-                sx={{ width: "5em" }}
-              />
-              <Typography sx={{ alignSelf: "center" }}>/</Typography>
-              <TextField
-                label="Max HP"
-                size="small"
-                margin="dense"
-                sx={{ width: "5em" }}
-              />
-            </Stack><Stack direction="row">
-              <TextField
-                label="HP"
-                size="small"
-                margin="dense"
-                sx={{ width: "5em" }}
-              />
-              <Typography sx={{ alignSelf: "center" }}>/</Typography>
-              <TextField
-                label="Max HP"
-                size="small"
-                margin="dense"
-                sx={{ width: "5em" }}
-              />
-            </Stack><Stack direction="row">
-              <TextField
-                label="HP"
-                size="small"
-                margin="dense"
-                sx={{ width: "5em" }}
-              />
-              <Typography sx={{ alignSelf: "center" }}>/</Typography>
-              <TextField
-                label="Max HP"
-                size="small"
-                margin="dense"
-                sx={{ width: "5em" }}
-              />
-            </Stack>
-          </Stack>
-
-
         </div>
 
         <div className="section">
           <h1>Hero Skills</h1>
           <div>
             <Grid container columnSpacing={2} justifyContent="space-evenly">
-              {skills.map((x, i) =>
+              {chunk(skills?.skills, skillsPerColumn)?.map((x, i) =>
                 <Grid item xs={3} key={`column_${i + 1}`}>
                   <Stack spacing={1}>
                     {x.map((item, j) =>

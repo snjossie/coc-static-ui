@@ -4,9 +4,9 @@ import { DiceRoll } from '@dice-roller/rpg-dice-roller';
 function getRollDefinition(e) {
 
     if (e.getModifierState("Shift")) {
-        return "((2d10kl1)*10) + 1d10";
+        return "((2d10kl1-1)*10) + 1d10";
     } else if (e.getModifierState("Control")) {
-        return "((2d10kh1)*10) + 1d10";
+        return "((2d10kh1-1)*10) + 1d10";
     }
 
     return "1d100";

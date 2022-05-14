@@ -68,7 +68,7 @@ export function RollTooltip(props) {
     }, []);
 
     useEventListener("keydown", handler);
-    useEventListener("keyup", handler);
+    // useEventListener("keyup", handler);
 
     return (
         <Tooltip
