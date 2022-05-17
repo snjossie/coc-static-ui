@@ -19,6 +19,18 @@ export const SignupPage = props => {
     useEffect(() => {
         const doGet = async () => {
             
+            const handleLogin = (loginType) => {
+                if (loginType === "popup") {
+                    instance.loginPopup(loginRequest).catch(e => {
+                        console.log(e);
+                    });
+                } else if (loginType === "redirect") {
+                    instance.loginRedirect(loginRequest).catch(e => {
+                        console.log(e);
+                    });
+                }
+            }
+
             handleLogin("popup");
 
             try {
@@ -54,19 +66,7 @@ export const SignupPage = props => {
         }
 
         doGet().catch(console.error);
-    }, [accounts, instance]);
-
-    const handleLogin = (loginType) => {
-        if (loginType === "popup") {
-            instance.loginPopup(loginRequest).catch(e => {
-                console.log(e);
-            });
-        } else if (loginType === "redirect") {
-            instance.loginRedirect(loginRequest).catch(e => {
-                console.log(e);
-            });
-        }
-    }
+    }, [accounts, instance, key, navigate]);
 
     return (<></>);
 }
