@@ -1,10 +1,18 @@
 import axios from 'axios';
 
-const baseUrl = "https://localhost:7043";
+// const baseUrl = "https://localhost:7043";
+const baseUrl = "https://call-of-cthulhu-api.azurewebsites.net";
+
+export async function signupUser(key) { 
+    return await axios.post(
+        `${baseUrl}/User/signup`,
+        { key }
+    )
+}
 
 export async function getInvestigator(id) {
     return await axios.get(
-        `${baseUrl}/Investigators/${id}`,
+        `${baseUrl}/Investigators/${id}`
     );
 }
 
