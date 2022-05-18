@@ -15,7 +15,7 @@ export const msalConfig = {
         clientId: "f3d120cb-193b-4d2b-8b54-e1cd4b61a65a",
         authority: "https://login.microsoftonline.com/consumers",
         // redirectUri: "http://localhost:3000/"
-        redirectUri: "https://call-of-cthulhu-api.azurewebsites.net"
+        redirectUri: "https://cthulhu.snjossie.io/"
     },
     cache: {
         cacheLocation: "sessionStorage", // This configures where your cache will be stored
