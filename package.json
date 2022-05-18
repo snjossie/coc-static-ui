@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@azure/msal-browser": "^2.24.0",
     "@azure/msal-react": "^1.4.0",
     "@dice-roller/rpg-dice-roller": "^5.1.0",
     "@emotion/react": "^11.9.0",
