@@ -14,7 +14,8 @@ export const msalConfig = {
     auth: {
         clientId: "f3d120cb-193b-4d2b-8b54-e1cd4b61a65a",
         authority: "https://login.microsoftonline.com/consumers",
-        redirectUri: "http://localhost:3000/"
+        // redirectUri: "http://localhost:3000/"
+        redirectUri: "https://call-of-cthulhu-api.azurewebsites.net"
     },
     cache: {
         cacheLocation: "sessionStorage", // This configures where your cache will be stored
@@ -58,10 +59,3 @@ export const loginRequest = {
 };
 
 export const apiRequest = loginRequest;
-/**
- * Add here the scopes to request when obtaining an access token for MS Graph API. For more information, see:
- * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
- */
-export const graphConfig = {
-    graphMeEndpoint: "https://localhost:7043/Investigators"
-};
