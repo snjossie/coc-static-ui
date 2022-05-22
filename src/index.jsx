@@ -32,7 +32,7 @@ const msalInstance = new PublicClientApplication(msalConfig);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-const GameApp = lazy(() => import('./App'));
+const GameApp = lazy(() => import('./InvestigatorPage'));
 const ChooseInvestigator = lazy(() => import('./SelectInvestigator'));
 const NewInvestigatorForm = lazy(() => import('./EntryForm'));
 const Landing = <LandingPage />;

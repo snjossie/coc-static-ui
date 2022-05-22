@@ -26,7 +26,7 @@ import { useParams } from 'react-router-dom'
 
 // import { SkillsPanel } from './SkillsPanel';
 
-function App() {
+function InvestigatorPage() {
 
   const { id } = useParams();
 
@@ -91,6 +91,23 @@ function App() {
     setOpen(false);
   };
 
+  const handleSpendLuck = (event, luckAmount) => {
+    if (!luckAmount) { 
+      alert("luckAmount was not a number");
+      return; 
+    }
+    
+    if (luckAmount > skills.luck.current) {
+      alert("Not enough luck");
+    } else {
+      const newSkills = {...skills}
+      newSkills.luck.current = skills.luck.current - luckAmount;
+      setSkills(newSkills);
+    }
+
+    handleClose(event, "spentLuck");
+  }
+
   const handleExited = () => {
     setMessageInfo(undefined);
   };
@@ -98,7 +115,7 @@ function App() {
   const action = (
     <React.Fragment>
       {messageInfo?.message?.luckAmount > 0 &&
-        <Button color="secondary" size="small" onClick={handleClose}>
+        <Button color="secondary" size="small" onClick={e => handleSpendLuck(e, messageInfo?.message.luckAmount)}>
           SPEND {messageInfo?.message?.luckAmount} LUCK
         </Button>
       }
@@ -312,4 +329,4 @@ function App() {
   );
 }
 
-export default App;
+export default InvestigatorPage;
