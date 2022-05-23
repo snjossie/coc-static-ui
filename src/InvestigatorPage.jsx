@@ -2,13 +2,14 @@ import './App.css';
 
 import * as React from 'react';
 
+import { Backdrop, CircularProgress, Divider, Grid } from '@mui/material';
+
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import Button from '@mui/material/Button';
 import CasinoIcon from '@mui/icons-material/Casino';
 import CloseIcon from '@mui/icons-material/Close';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { Grid } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import { InputAdornment } from '@mui/material';
 import PsychologyIcon from '@mui/icons-material/Psychology';
@@ -34,6 +35,8 @@ function InvestigatorPage() {
   const [open, setOpen] = React.useState(false);
   const [messageInfo, setMessageInfo] = React.useState(undefined);
 
+  const [loading, setLoading] = React.useState(false);
+
   const [investigator, setInvestigator] = React.useState({ name: "", age: "", sex: "", archetype: "", birthplace: "", occupation: "" });
   const [skills, setSkills] = React.useState({});
 
@@ -52,16 +55,23 @@ function InvestigatorPage() {
         return;
       }
 
-      const response = await getInvestigator(id);
+      try {
+        setLoading(true);
+        const response = await getInvestigator(id);
 
-      let unwrap = ({ name, occupation, age, sex, archetype, residence, birthplace }) =>
-        ({ name, occupation, age, sex, archetype, residence, birthplace });
+        let unwrap = ({ name, occupation, age, sex, archetype, residence, birthplace }) =>
+          ({ name, occupation, age, sex, archetype, residence, birthplace });
 
-      console.log(response);
-      const data = unwrap(response.data);
+        const data = unwrap(response.data);
 
-      setInvestigator(data);
-      setSkills(response.data);
+        setInvestigator(data);
+        setSkills(response.data);
+
+      } catch (ex) {
+        console.error(ex);
+      }
+
+      setLoading(false);
     };
 
     doGet().catch(console.error);
@@ -92,15 +102,15 @@ function InvestigatorPage() {
   };
 
   const handleSpendLuck = (event, luckAmount) => {
-    if (!luckAmount) { 
+    if (!luckAmount) {
       alert("luckAmount was not a number");
-      return; 
+      return;
     }
-    
+
     if (luckAmount > skills.luck.current) {
       alert("Not enough luck");
     } else {
-      const newSkills = {...skills}
+      const newSkills = { ...skills }
       newSkills.luck.current = skills.luck.current - luckAmount;
       setSkills(newSkills);
     }
@@ -135,6 +145,14 @@ function InvestigatorPage() {
 
   return (
     <React.Fragment>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      //  onClick={handleClose}
+      >
+        <CircularProgress />
+      </Backdrop>
+
       <div className="App">
         <Snackbar
           open={open}
@@ -170,15 +188,17 @@ function InvestigatorPage() {
                 </Grid>
               )}
             </Grid>
-            
+
             <Grid container columnSpacing={0} justifyContent="space-evenly">
               <Grid item xs={3}>
                 <TextField
-                                   InputProps={{startAdornment: (
-                                    <InputAdornment position="start">
-                                     <DirectionsRunIcon />
-                                    </InputAdornment>
-                                  )}}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <DirectionsRunIcon />
+                      </InputAdornment>
+                    )
+                  }}
                   label="Move Rate"
                   value={skills?.moveRate ?? ""}
                   size="small"
@@ -188,103 +208,111 @@ function InvestigatorPage() {
                   onChange={handleChange}
                 />
               </Grid>
-              
+
               <Grid item xs={3}>
                 <Stack direction="row">
-                <TextField
-                                   InputProps={{startAdornment: (
-                                    <InputAdornment position="start">
-                                     <CasinoIcon color="success" />
-                                    </InputAdornment>
-                                  )}}
-                  label="Luck"
-                  value={skills?.luck?.current ?? ""}
-                  size="small"
-                  margin="dense"
-                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                  sx={{ width: "5em" }}
-                />
+                  <TextField
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CasinoIcon color="success" />
+                        </InputAdornment>
+                      )
+                    }}
+                    label="Luck"
+                    value={skills?.luck?.current ?? ""}
+                    size="small"
+                    margin="dense"
+                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                    sx={{ width: "5em" }}
+                  />
                 </Stack>
               </Grid>
 
               <Grid item xs={3}>
                 <Stack>
-                <Stack direction="row">
-                  
-                  <TextField
-                    InputProps={{startAdornment: (
-                      <InputAdornment position="start">
-                        <FavoriteIcon color='error' />
-                      </InputAdornment>
-                    )}}
-                    label="HP"
-                    value={skills?.healthPoints?.current ?? ""}
-                    size="small"
-                    margin="dense"
-                    sx={{ minWidth: "5em" }}
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                    onChange={handleChange}
-                  />
-                  <Typography sx={{ alignSelf: "center" }}>/</Typography>
-                  <TextField
-                    label="Max HP"
-                    value={skills?.healthPoints?.max ?? ""}
-                    size="small"
-                    margin="dense"
-                    sx={{ minWidth: "5em" }}
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                    onChange={handleChange}
-                  />
-                </Stack>
-                <Stack direction="row">
-                  <TextField
-                    InputProps={{startAdornment: (
-                      <InputAdornment position="start">
-                        <PsychologyIcon color="info" />
-                      </InputAdornment>
-                    )}}
-                    label="Sanity"
-                    value={skills?.sanityPoints?.current ?? ""}
-                    size="small"
-                    margin="dense"
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                    sx={{ minWidth: "5em" }}
-                  />
-                  <Typography sx={{ alignSelf: "center" }}>/</Typography>
-                  <TextField
-                    label="Max Sanity"
-                    value={skills?.sanityPoints?.current ?? ""}
-                    size="small"
-                    margin="dense"
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                    sx={{ minWidth: "5em" }}
-                  />
-                </Stack>
-                <Stack direction="row">
-                
-                  <TextField
-                   InputProps={{startAdornment: (
-                    <InputAdornment position="start">
-                     <AutoFixHighIcon color="secondary" />
-                    </InputAdornment>
-                  )}}
-                    label="MP"
-                    value={skills?.magicPoints?.current ?? ""}
-                    size="small"
-                    margin="dense"
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                    sx={{ minWidth: "5em" }}
-                  />
-                  <Typography sx={{ alignSelf: "center" }}>/</Typography>
-                  <TextField
-                    label="Max MP"
-                    value={skills?.magicPoints?.current ?? ""}
-                    size="small"
-                    margin="dense"
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                    sx={{ minWidth: "5em" }}
-                  />
-                </Stack>
+                  <Stack direction="row">
+
+                    <TextField
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <FavoriteIcon color='error' />
+                          </InputAdornment>
+                        )
+                      }}
+                      label="HP"
+                      value={skills?.healthPoints?.current ?? ""}
+                      size="small"
+                      margin="dense"
+                      sx={{ minWidth: "5em" }}
+                      inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                      onChange={handleChange}
+                    />
+                    <Typography sx={{ alignSelf: "center" }}>/</Typography>
+                    <TextField
+                      label="Max HP"
+                      value={skills?.healthPoints?.max ?? ""}
+                      size="small"
+                      margin="dense"
+                      sx={{ minWidth: "5em" }}
+                      inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                      onChange={handleChange}
+                    />
+                  </Stack>
+                  <Stack direction="row">
+                    <TextField
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <PsychologyIcon color="info" />
+                          </InputAdornment>
+                        )
+                      }}
+                      label="Sanity"
+                      value={skills?.sanityPoints?.current ?? ""}
+                      size="small"
+                      margin="dense"
+                      inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                      sx={{ minWidth: "5em" }}
+                    />
+                    <Typography sx={{ alignSelf: "center" }}>/</Typography>
+                    <TextField
+                      label="Max Sanity"
+                      value={skills?.sanityPoints?.current ?? ""}
+                      size="small"
+                      margin="dense"
+                      inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                      sx={{ minWidth: "5em" }}
+                    />
+                  </Stack>
+                  <Stack direction="row">
+
+                    <TextField
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <AutoFixHighIcon color="secondary" />
+                          </InputAdornment>
+                        )
+                      }}
+                      label="MP"
+                      value={skills?.magicPoints?.current ?? ""}
+                      size="small"
+                      margin="dense"
+                      inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                      sx={{ minWidth: "5em" }}
+                    />
+                    <Typography sx={{ alignSelf: "center" }}>/</Typography>
+                    <TextField
+                      label="Max MP"
+                      value={skills?.magicPoints?.current ?? ""}
+                      size="small"
+                      margin="dense"
+                      inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                      sx={{ minWidth: "5em" }}
+                    />
+                  </Stack>
                 </Stack>
               </Grid>
             </Grid>
@@ -292,8 +320,15 @@ function InvestigatorPage() {
           </div>
         </div>
 
+        <Divider />
+
         <div className="section">
-          <h1>Hero Skills</h1>
+          <Stack direction="row" spacing={3} alignItems="center">
+            <Typography variant="h5">Hero Skills</Typography>
+            <Typography variant="body2">
+              <kbd>shift</kbd> + click for Bonus roll or <kbd>ctrl</kbd> + click for Penalty roll
+            </Typography>
+          </Stack>
           <div>
             <Grid container columnSpacing={2} justifyContent="space-evenly">
               {chunk(skills?.skills, skillsPerColumn)?.map((x, i) =>
@@ -316,12 +351,17 @@ function InvestigatorPage() {
             </Grid>
           </div>
         </div>
-        <div className="section">
-          <h1>Weapons go here</h1>
-        </div>
+
+        <Divider />
 
         <div className="section">
-          <h1>Credit/Pulp Skills go here</h1>
+          <Typography variant="h5">Weapons go here</Typography>
+        </div>
+
+        <Divider />
+
+        <div className="section">
+          <Typography variant="h5">Credit/Pulp Skills go here</Typography>
         </div>
       </div>
     </React.Fragment>

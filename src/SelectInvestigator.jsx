@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Container, Typography } from '@mui/material';
+import { Backdrop, CircularProgress, Container, Typography } from '@mui/material';
 import { Link, useNavigate } from "react-router-dom";
 import { newInvestigatorRoute, viewInvestigatorRoute } from './Routes';
 
@@ -17,11 +17,12 @@ import { useMsal } from "@azure/msal-react";
 export default function SelectInvestigator() {
     const defaultInvestigators = []
 
+    const [loading, setLoading] = React.useState(false);
     const [investigators, setInvestigators] = React.useState(defaultInvestigators);
     const navigate = useNavigate();
 
     const { instance, accounts } = useMsal();
-    
+
     // instance.acquireTokenSilent({
     //     ...loginRequest,
     //     account: accounts[0]
@@ -34,8 +35,9 @@ export default function SelectInvestigator() {
 
     useEffect(() => {
         const doGet = async () => {
-            
+
             try {
+                setLoading(true);
                 const tokenResponse = await instance.acquireTokenSilent({
                     ...apiRequest,
                     account: accounts[0]
@@ -43,7 +45,7 @@ export default function SelectInvestigator() {
 
                 axios.defaults.headers.common = {
                     ...axios.defaults.headers.common,
-                     'Authorization': `Bearer ${tokenResponse.accessToken}`
+                    'Authorization': `Bearer ${tokenResponse.accessToken}`
                 }
 
             } catch (ex) {
@@ -52,7 +54,7 @@ export default function SelectInvestigator() {
 
                     // Acquire token interactive success
                     const accessToken = accessTokenResponse.accessToken;
-                    
+
                     // Call your API with token
                     axios.defaults.headers.common = {
                         ...axios.defaults.headers.common,
@@ -60,9 +62,10 @@ export default function SelectInvestigator() {
                     }
                 }
             }
-            
+
             const response = await getInvestigatorList();
             setInvestigators(response.data ?? []);
+            setLoading(false);
         }
 
         doGet().catch(console.error);
@@ -74,13 +77,20 @@ export default function SelectInvestigator() {
 
     return (
         <Container>
-            <Typography variant="h5" alignContent="Middle" sx={{marginTop: "1em"}}>
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={loading}
+            >
+                <CircularProgress />
+            </Backdrop>
+
+            <Typography variant="h5" alignContent="Middle" sx={{ marginTop: "1em" }}>
                 Create a new investigator
             </Typography>
             <Link to={newInvestigatorRoute}>
                 New Investigator
-            </Link>            
-            <Typography variant="h5" alignContent="Middle" sx={{marginTop: "1em"}}>
+            </Link>
+            <Typography variant="h5" alignContent="Middle" sx={{ marginTop: "1em" }}>
                 Choose your investigator
             </Typography>
             <List>
