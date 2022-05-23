@@ -1,10 +1,18 @@
-import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
 import React, { useEffect } from "react";
-import { getBlankInvestigator, createInvestigator } from "./InvestigatorService";
+import { createInvestigator, getBlankInvestigator } from "./InvestigatorService";
+
+import Box from '@mui/material/Box';
 import Button from "@mui/material/Button";
+import CircularProgress from '@mui/material/CircularProgress';
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import { green } from '@mui/material/colors';
 
 function EntryForm() {
+
+    const [loading, setLoading] = React.useState(false);
+    const [success, setSuccess] = React.useState(false);
+
     const [investigator, setInvestigator] = React.useState({
         characteristics: [{}, {}, {}, {}, {}, {}, {}],
     });
@@ -12,7 +20,8 @@ function EntryForm() {
     const onChange = (event) => {
         const name = event.target.name;
         const value = event.target.value;
-
+        
+        setSuccess(false);
         setInvestigator({ ...investigator, [name]: value });
     };
 
@@ -22,6 +31,7 @@ function EntryForm() {
         const replacement = { ...investigator };
         replacement[field][x] = value;
 
+        setSuccess(false);
         setInvestigator(replacement);
     };
 
@@ -31,33 +41,84 @@ function EntryForm() {
         const replacement = { ...investigator };
         replacement[field][i].successValue = value;
 
+        setSuccess(false);
         setInvestigator(replacement);
     };
 
     const doGet = async () => {
         const response = await getBlankInvestigator();
 
+        setSuccess(false);
         setInvestigator(response.data);
     };
 
     const doPost = async () => {
-        const response = await createInvestigator(investigator);
+        setSuccess(false);
+        setLoading(true);
 
-        console.log(response);
+        try {
+            const response = await createInvestigator(investigator);
+            setSuccess(true);
+            console.log(response);
+
+        } catch (ex) {
+            alert("Saving new investigator failed; check to ensure all fields have a value and that the type (text vs number) makes sense for the field.");
+        }
+
+        setLoading(false);
+    };
+
+    const buttonSx = {
+        ...(success && {
+            bgcolor: green[500],
+            '&:hover': {
+                bgcolor: green[700],
+            },
+        }),
     };
 
     const doDump = () => console.log(investigator);
 
-    useEffect( () => {
-         doGet();
+    useEffect(() => {
+        doGet();
     }, []);
 
     return (
         <>
             <Stack>
-                <Button onClick={doGet}>Create New</Button>
-                <Button onClick={doDump}>Dump Data</Button>
-                <Button onClick={doPost}>Save Data</Button>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <Button
+                            variant="contained"
+                            onClick={doPost}
+                            sx={buttonSx}
+                            disabled={loading}
+                        >
+                            Save Data
+                        </Button>
+                        {loading && (
+                            <CircularProgress
+                                size={24}
+                                sx={{
+                                    color: green[500],
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    marginTop: '-12px',
+                                    marginLeft: '-12px',
+                                }}
+                            />
+                        )}
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <Button variant="outlined" onClick={doGet}>Create New</Button>
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <Button variant="outlined" onClick={doDump}>Dump Data</Button>
+                    </Box>
+                </Box>
+
+
                 <TextField
                     value={investigator?.name ?? ""}
                     name="name"
@@ -69,7 +130,7 @@ function EntryForm() {
                 <TextField
                     value={investigator?.occupation ?? ""}
                     name="occupation"
-                    label="occupation"
+                    label="Occupation"
                     size="small"
                     margin="dense"
                     onChange={onChange}
@@ -77,7 +138,7 @@ function EntryForm() {
                 <TextField
                     value={investigator?.age ?? ""}
                     name="age"
-                    label="age"
+                    label="Age"
                     size="small"
                     margin="dense"
                     onChange={onChange}
@@ -85,7 +146,7 @@ function EntryForm() {
                 <TextField
                     value={investigator?.sex ?? ""}
                     name="sex"
-                    label="sex"
+                    label="Sex"
                     size="small"
                     margin="dense"
                     onChange={onChange}
@@ -93,7 +154,7 @@ function EntryForm() {
                 <TextField
                     value={investigator?.archetype ?? ""}
                     name="archetype"
-                    label="archetype"
+                    label="Archetype"
                     size="small"
                     margin="dense"
                     onChange={onChange}
@@ -101,7 +162,7 @@ function EntryForm() {
                 <TextField
                     value={investigator?.residence ?? ""}
                     name="residence"
-                    label="residence"
+                    label="Residence"
                     size="small"
                     margin="dense"
                     onChange={onChange}
@@ -109,7 +170,7 @@ function EntryForm() {
                 <TextField
                     value={investigator?.birthplace ?? ""}
                     name="birthplace"
-                    label="birthplace"
+                    label="Birthplace"
                     size="small"
                     margin="dense"
                     onChange={onChange}
@@ -129,7 +190,7 @@ function EntryForm() {
                     label="HP Max"
                     size="small"
                     margin="dense"
-                    onChange={onChangeSubObject.bind(this, "healthPoints", "nax")}
+                    onChange={onChangeSubObject.bind(this, "healthPoints", "max")}
                 />
                 <TextField
                     value={investigator?.sanityPoints?.current ?? ""}
