@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-// const baseUrl = "https://localhost:7043";
-const baseUrl = "https://call-of-cthulhu-api.azurewebsites.net";
+const baseUrl = process.env.REACT_APP_API_BASE_URI;
 
 export async function signupUser(key) { 
     return await axios.post(
