@@ -6,13 +6,19 @@ import { Route, BrowserRouter as Router, Routes, useNavigate } from 'react-route
 import { homeRoute, newInvestigatorRoute, selectInvestigatorRoute, signupRoute, viewInvestigatorRoute } from './Routes';
 
 import ErrorBoundary from './ErrorBoundary';
+import { InteractionRequiredAuthError } from "@azure/msal-browser";
 import { LandingPage } from './LandingPage';
 import { MsalProvider } from '@azure/msal-react';
 import { NavClient } from './util/NavClient';
 import { PageLayout } from './PageLayout';
 import { SignupPage } from './SignupPage';
+import { apiRequest } from "./AuthConfig";
+import axios from 'axios';
+import {msalInstance} from './index'
 
 function App({ publicClientApp }) {
+
+    configureAxiosAuthInterception();    
 
     return (
         <MsalProvider instance={publicClientApp}>
@@ -53,4 +59,69 @@ function Pages({ publicClientApp }) {
     );
 }
 
+function configureAxiosAuthInterception() {
+    axios.interceptors.request.use(config => new Promise((resolve, reject) => {
+
+        try {
+            msalInstance.acquireTokenSilent({
+                ...apiRequest,
+                account: msalInstance.getAllAccounts()[0]
+            }).then(result => {
+                console.log("Token acquired silently...");
+                // axios.defaults.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
+                config.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
+                resolve(config);
+            });
+        } catch (ex) {
+            if (ex instanceof InteractionRequiredAuthError) {
+                console.log("Interaction required for token...");
+                msalInstance.acquireTokenPopup(apiRequest).then(result => {
+                    config.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
+                })
+            } else {
+                console.log(ex);
+            }
+
+            reject();
+        }
+      }));
+}
+
 export default App;
+
+// axios.interceptors.request.use(async function (config) {
+
+//     try {
+//         const tokenResponse = await msalInstance.acquireTokenSilent({
+//             ...apiRequest,
+//             account: msalInstance.getAllAccounts()[0]
+//         });
+
+//         console.log("Token acquired silently...");
+//         axios.defaults.headers.common['Authorization'] = `Bearer ${tokenResponse.accessToken}`;
+
+//         // axios.defaults.headers.common = {
+//         //     ...axios.defaults.headers.common,
+//         //      'Authorization': `Bearer ${tokenResponse.accessToken}`
+//         // }
+
+//     } catch (ex) {
+//         if (ex instanceof InteractionRequiredAuthError) {
+//             console.log("Interaction required for token...");
+//             const tokenResponse = await msalInstance.acquireTokenPopup(apiRequest)
+            
+//             axios.defaults.headers.common['Authorization'] = `Bearer ${tokenResponse.accessToken}`;
+            
+//             // Call your API with token
+//             // axios.defaults.headers.common = {
+//             //     ...axios.defaults.headers.common,
+//             //     'Authorization': `Bearer ${accessToken}`
+//             // }
+//         }
+//     }
+
+//     return config;
+//   }, function (error) {
+//     // Do something with request error
+//     return Promise.reject(error);
+//   });

@@ -36,7 +36,7 @@ export const LandingPage = props => {
     }
 
     return (
-        <Button onClick={() => handleLogin("popup")}>
+        <Button onClick={() => handleLogin("redirect")}>
             Sign In
         </Button>
     )

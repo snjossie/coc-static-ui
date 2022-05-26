@@ -25,8 +25,6 @@ import { getInvestigator } from './InvestigatorService';
 import { rollDice } from './dice/DiceFuncs';
 import { useParams } from 'react-router-dom'
 
-// import { SkillsPanel } from './SkillsPanel';
-
 function InvestigatorPage() {
 
   const { id } = useParams();
@@ -148,7 +146,6 @@ function InvestigatorPage() {
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={loading}
-      //  onClick={handleClose}
       >
         <CircularProgress />
       </Backdrop>
