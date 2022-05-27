@@ -28,6 +28,13 @@ export async function createInvestigator(investigator) {
     );
 }
 
+export async function updateInvestigator(investigator){ 
+    return await axios.put(
+        `${baseUrl}/Investigators`,
+        investigator
+    );
+}
+
 export async function getBlankInvestigator() { 
     return await axios.get(
         `${baseUrl}/Investigators/blank`

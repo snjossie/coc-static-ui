@@ -3,6 +3,7 @@ import './App.css';
 import * as React from 'react';
 
 import { Backdrop, CircularProgress, Divider, Grid } from '@mui/material';
+import { getInvestigator, updateInvestigator } from './InvestigatorService';
 
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import Button from '@mui/material/Button';
@@ -21,7 +22,6 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography';
 import { checkIfValidUUID } from './util/UuidFuncs';
 import { chunk } from './util/ArrayFuncs';
-import { getInvestigator } from './InvestigatorService';
 import { rollDice } from './dice/DiceFuncs';
 import { useParams } from 'react-router-dom'
 
@@ -114,11 +114,28 @@ function InvestigatorPage() {
     }
 
     handleClose(event, "spentLuck");
+    handleSave();
   }
 
   const handleExited = () => {
     setMessageInfo(undefined);
   };
+
+  
+  const handleLuckChange = event => {
+    const replacement = { ...skills };
+    replacement.luck.current = event.target.value;
+
+    setSkills(replacement);
+  }
+
+  const handleSave = async () => {
+    try {
+      await updateInvestigator(skills);
+    } catch (ex){
+      alert("Failed to save" + ex);
+    }
+  }
 
   const action = (
     <React.Fragment>
@@ -150,7 +167,7 @@ function InvestigatorPage() {
         <CircularProgress />
       </Backdrop>
 
-      <div className="App">
+      <div className="App invesigatorPage">
         <Snackbar
           open={open}
           TransitionProps={{ onExited: handleExited }}
@@ -222,6 +239,8 @@ function InvestigatorPage() {
                     margin="dense"
                     inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                     sx={{ width: "5em" }}
+                    onChange={handleLuckChange}
+                    onBlur={handleSave}
                   />
                 </Stack>
               </Grid>
