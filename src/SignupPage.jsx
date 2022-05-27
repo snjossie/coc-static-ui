@@ -1,3 +1,4 @@
+import handleRedirectAuth from "./util/auth";
 import { loginRequest } from "./AuthConfig";
 import { selectInvestigatorRoute } from './Routes';
 import { signupUser } from './InvestigatorService';
@@ -12,6 +13,8 @@ export const SignupPage = props => {
     const navigate = useNavigate();
 
     const { instance, accounts } = useMsal();
+
+    handleRedirectAuth(instance, accounts, navigate);
 
     useEffect(() => {
         const doGet = async () => {
@@ -28,7 +31,7 @@ export const SignupPage = props => {
                 }
             }
 
-            handleLogin("popup");
+            handleLogin("redirect");
 
             const response = await signupUser(key);
             if(response.status === 200) {

@@ -1,4 +1,5 @@
 import { Button } from "@mui/material";
+import handleRedirectAuth from "./util/auth";
 import { loginRequest } from "./AuthConfig";
 import { selectInvestigatorRoute } from "./Routes";
 import { useEffect } from "react";
@@ -8,10 +9,12 @@ import { useNavigate } from "react-router-dom";
 
 export const LandingPage = props => {
 
-    const { instance } = useMsal();
+    const { instance, accounts } = useMsal();
     const navigate = useNavigate();
 
     const isAuthenticated = useIsAuthenticated();
+
+    handleRedirectAuth(instance, accounts, navigate);
 
     useEffect(() => {
         if (isAuthenticated) {
