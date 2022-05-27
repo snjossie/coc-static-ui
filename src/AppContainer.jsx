@@ -62,29 +62,30 @@ function Pages({ publicClientApp }) {
 function configureAxiosAuthInterception() {
     axios.interceptors.request.use(config => new Promise((resolve, reject) => {
 
-        try {
-            msalInstance.acquireTokenSilent({
-                ...apiRequest,
-                account: msalInstance.getAllAccounts()[0]
-            }).then(result => {
-                console.log("Token acquired silently...");
-                // axios.defaults.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
-                config.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
-                resolve(config);
-            });
-        } catch (ex) {
+        msalInstance.acquireTokenSilent({
+            ...apiRequest,
+            account: msalInstance.getAllAccounts()[0]
+        }).then(result => {
+            console.log("Token acquired silently...");
+            // axios.defaults.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
+            config.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
+            resolve(config);
+        }).catch(ex => {
             if (ex instanceof InteractionRequiredAuthError) {
                 console.log("Interaction required for token...");
                 msalInstance.acquireTokenPopup(apiRequest).then(result => {
                     config.headers.common['Authorization'] = `Bearer ${result.accessToken}`;
-                })
+                    resolve(config);
+                }).catch(ex => {
+                    console.error(ex);
+                    reject();
+                });
             } else {
-                console.log(ex);
+                console.error(ex);
+                reject();
             }
-
-            reject();
-        }
-      }));
+        });
+    }));
 }
 
 export default App;
