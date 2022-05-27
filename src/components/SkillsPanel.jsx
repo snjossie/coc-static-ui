@@ -1,9 +1,9 @@
-import React from "react";
-import { chunk } from "./util/ArrayFuncs";
 import { Grid } from "@mui/material";
+import React from "react";
 import { SkillComponent } from "./SkillComponent";
 import Stack from "@mui/material/Stack";
-import { rollDice } from "./dice/DiceFuncs";
+import { chunk } from "../util/ArrayFuncs";
+import { rollDice } from "../dice/DiceFuncs";
 
 export class SkillsPanel extends React.Component {
   constructor(props) {

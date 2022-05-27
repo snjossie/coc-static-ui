@@ -2,12 +2,12 @@ import * as React from 'react';
 
 import { Backdrop, CircularProgress, Container, Typography } from '@mui/material';
 import { Link, useNavigate } from "react-router-dom";
-import { newInvestigatorRoute, viewInvestigatorRoute } from './Routes';
+import { newInvestigatorRoute, viewInvestigatorRoute } from '../Routes';
 
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import { generatePath } from 'react-router-dom';
-import { getInvestigatorList } from './InvestigatorService';
+import { getInvestigatorList } from '../InvestigatorService';
 import { useEffect } from 'react';
 import { useMsal } from "@azure/msal-react";
 

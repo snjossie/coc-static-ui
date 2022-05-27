@@ -1,8 +1,8 @@
-import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
 import React from "react";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
 
-export class ResourcePanel extends React.Component {
+export default class ResourcePanel extends React.Component {
   render() {
     return (
         <Stack>

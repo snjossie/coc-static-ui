@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
-import handleRedirectAuth from "./util/auth";
-import { loginRequest } from "./AuthConfig";
-import { selectInvestigatorRoute } from "./Routes";
+import handleRedirectAuth from "../util/auth";
+import { loginRequest } from "../AuthConfig";
+import { selectInvestigatorRoute } from "../Routes";
 import { useEffect } from "react";
 import { useIsAuthenticated } from "@azure/msal-react";
 import { useMsal } from "@azure/msal-react";

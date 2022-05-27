@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { createInvestigator, getBlankInvestigator } from "./InvestigatorService";
+import { createInvestigator, getBlankInvestigator } from "../InvestigatorService";
 
 import Box from '@mui/material/Box';
 import Button from "@mui/material/Button";

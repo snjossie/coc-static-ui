@@ -1,21 +1,21 @@
-import './index.css';
+import '../index.css';
 
 import { Box, CircularProgress } from '@mui/material';
 import React, { Suspense, lazy } from 'react';
 import { Route, BrowserRouter as Router, Routes, useNavigate } from 'react-router-dom';
-import { homeRoute, logoutRoute, newInvestigatorRoute, selectInvestigatorRoute, signupRoute, viewInvestigatorRoute } from './Routes';
+import { homeRoute, logoutRoute, newInvestigatorRoute, selectInvestigatorRoute, signupRoute, viewInvestigatorRoute } from '../Routes';
 
 import ErrorBoundary from './ErrorBoundary';
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
-import { LandingPage } from './LandingPage';
-import Logout from './pages/Logout';
+import { LandingPage } from '../pages/LandingPage';
+import Logout from '../pages/Logout';
 import { MsalProvider } from '@azure/msal-react';
-import { NavClient } from './util/NavClient';
+import { NavClient } from '../util/NavClient';
 import { PageLayout } from './PageLayout';
-import { SignupPage } from './SignupPage';
-import { apiRequest } from "./AuthConfig";
+import { SignupPage } from '../pages/SignupPage';
+import { apiRequest } from "../AuthConfig";
 import axios from 'axios';
-import { msalInstance } from './index'
+import { msalInstance } from '../index'
 
 function App({ publicClientApp }) {
 
@@ -40,9 +40,9 @@ function Pages({ publicClientApp }) {
     const navClient = new NavClient(navigate);
     publicClientApp.setNavigationClient(navClient);
 
-    const GameApp = lazy(() => import('./InvestigatorPage'));
-    const ChooseInvestigator = lazy(() => import('./SelectInvestigator'));
-    const NewInvestigatorForm = lazy(() => import('./EntryForm'));
+    const GameApp = lazy(() => import('../pages/InvestigatorPage'));
+    const ChooseInvestigator = lazy(() => import('../pages/SelectInvestigator'));
+    const NewInvestigatorForm = lazy(() => import('../pages/EntryForm'));
     const Landing = <LandingPage />;
     const Signup = <SignupPage />;
 

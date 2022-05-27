@@ -1,10 +1,10 @@
+import Checkbox from '@mui/material/Checkbox';
+import { CocButtonGroup } from "./CocButtonGroup";
 import { Component } from "react";
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import { CocButtonGroup } from "./SkillButton/CocButtonGroup";
 import { Grid } from "@mui/material";
 
-export class SkillComponent extends Component {
+export default class SkillComponent extends Component {
 
     render() {
         return (

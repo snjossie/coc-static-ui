@@ -1,9 +1,9 @@
-import './App.css';
+import '../App.css';
 
 import * as React from 'react';
 
 import { Backdrop, CircularProgress, Divider, Grid } from '@mui/material';
-import { getInvestigator, updateInvestigator } from './InvestigatorService';
+import { getInvestigator, updateInvestigator } from '../InvestigatorService';
 
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import Button from '@mui/material/Button';
@@ -14,15 +14,15 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import IconButton from '@mui/material/IconButton';
 import { InputAdornment } from '@mui/material';
 import PsychologyIcon from '@mui/icons-material/Psychology';
-import { ResourcePanel } from './ResourcePanel';
-import { SkillComponent } from './SkillComponent';
+import ResourcePanel from '../components/ResourcePanel';
+import SkillComponent  from '../components/SkillComponent';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography';
-import { checkIfValidUUID } from './util/UuidFuncs';
-import { chunk } from './util/ArrayFuncs';
-import { rollDice } from './dice/DiceFuncs';
+import { checkIfValidUUID } from '../util/UuidFuncs';
+import { chunk } from '../util/ArrayFuncs';
+import { rollDice } from '../dice/DiceFuncs';
 import { useParams } from 'react-router-dom'
 
 function InvestigatorPage() {
