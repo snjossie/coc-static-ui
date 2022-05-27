@@ -9,7 +9,7 @@ function handleRedirectAuth(instance, accounts, navigate) {
         } else {
             // Not returning from auth, have to check if already logged in
 
-            const currentAccounts = accounts.getAllAccounts();
+            const currentAccounts = accounts;
             if (!currentAccounts || currentAccounts.length < 1) {
                 // do nothing?
             } else if (currentAccounts.length > 0) {
