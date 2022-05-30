@@ -10,6 +10,7 @@ export class SkillsPanel extends React.Component {
     super(props);
     this.state = props.skills;
     this.handleClick = props.handleClick;
+    this.handleSkillSuccess = props.handleSkillSuccess;
     this.skillsPerColumn = 15;
   }
 
@@ -28,6 +29,7 @@ export class SkillsPanel extends React.Component {
                   skill={item}
                   rollDice={rollDice}
                   openFunc={(message) => this.handleClick(message)()}
+                  handleSkillSuccess={handleSkillSuccess}
                 />
               ))}
             </Stack>
