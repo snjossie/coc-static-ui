@@ -1,15 +1,16 @@
-import React from "react";
-import { chunk } from "./util/ArrayFuncs";
 import { Grid } from "@mui/material";
+import React from "react";
 import { SkillComponent } from "./SkillComponent";
 import Stack from "@mui/material/Stack";
-import { rollDice } from "./dice/DiceFuncs";
+import { chunk } from "../util/ArrayFuncs";
+import { rollDice } from "../dice/DiceFuncs";
 
 export class SkillsPanel extends React.Component {
   constructor(props) {
     super(props);
     this.state = props.skills;
     this.handleClick = props.handleClick;
+    this.handleSkillSuccess = props.handleSkillSuccess;
     this.skillsPerColumn = 15;
   }
 
@@ -28,6 +29,7 @@ export class SkillsPanel extends React.Component {
                   skill={item}
                   rollDice={rollDice}
                   openFunc={(message) => this.handleClick(message)()}
+                  handleSkillSuccess={handleSkillSuccess}
                 />
               ))}
             </Stack>

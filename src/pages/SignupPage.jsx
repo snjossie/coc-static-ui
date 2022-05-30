@@ -1,7 +1,7 @@
-import handleRedirectAuth from "./util/auth";
-import { loginRequest } from "./AuthConfig";
-import { selectInvestigatorRoute } from './Routes';
-import { signupUser } from './InvestigatorService';
+import handleRedirectAuth from "../util/auth";
+import { loginRequest } from "../AuthConfig";
+import { selectInvestigatorRoute } from '../Routes';
+import { signupUser } from '../InvestigatorService';
 import { useEffect } from 'react';
 import { useMsal } from "@azure/msal-react";
 import { useNavigate } from "react-router-dom";

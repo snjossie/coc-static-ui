@@ -1,8 +1,8 @@
-import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
 import React from "react";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
 
-export class ResourcePanel extends React.Component {
+export default class ResourcePanel extends React.Component {
   render() {
     return (
         <Stack>
@@ -12,7 +12,9 @@ export class ResourcePanel extends React.Component {
             label="Name"
             size="small"
             margin="dense"
+            disabled={true}
             onChange={this.props.onChange}
+            onBlur={this.props.onFieldBlur}
           />
           <TextField
             value={this.props.investigator?.occupation ?? ""}
@@ -20,7 +22,9 @@ export class ResourcePanel extends React.Component {
             label="Occupation"
             size="small"
             margin="dense"
+            disabled={true}
             onChange={this.props.onChange}
+            onBlur={this.props.onFieldBlur}
           />
           <TextField
             value={this.props.investigator?.age ?? ""}
@@ -28,7 +32,9 @@ export class ResourcePanel extends React.Component {
             label="Age"
             size="small"
             margin="dense"
+            disabled={true}
             onChange={this.props.onChange}
+            onBlur={this.props.onFieldBlur}
           />
           <TextField
             value={this.props.investigator?.sex ?? ""}
@@ -36,7 +42,9 @@ export class ResourcePanel extends React.Component {
             label="Sex"
             size="small"
             margin="dense"
+            disabled={true}
             onChange={this.props.onChange}
+            onBlur={this.props.onFieldBlur}
           />
           <TextField
             value={this.props.investigator?.archetype ?? ""}
@@ -44,7 +52,9 @@ export class ResourcePanel extends React.Component {
             label="Archetype"
             size="small"
             margin="dense"
+            disabled={true}
             onChange={this.props.onChange}
+            onBlur={this.props.onFieldBlur}
           />
           <TextField
             value={this.props.investigator?.residence ?? ""}
@@ -52,7 +62,9 @@ export class ResourcePanel extends React.Component {
             label="Residence"
             size="small"
             margin="dense"
+            disabled={true}
             onChange={this.props.onChange}
+            onBlur={this.props.onFieldBlur}
           />
           <TextField
             value={this.props.investigator?.birthplace ?? ""}
@@ -60,7 +72,9 @@ export class ResourcePanel extends React.Component {
             label="Birthplace"
             size="small"
             margin="dense"
+            disabled={true}
             onChange={this.props.onChange}
+            onBlur={this.props.onFieldBlur}
           />
         </Stack>
     );

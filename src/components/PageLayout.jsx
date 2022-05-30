@@ -1,13 +1,13 @@
 import AppBar from '@mui/material/AppBar';
-import { ReactComponent as AppIcon } from './img/eldersign.svg'
+import { ReactComponent as AppIcon } from '../img/eldersign.svg'
 import { Box } from '@mui/system';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import SvgIcon from '@mui/material/SvgIcon';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { homeRoute } from './Routes';
-import { logoutRoute } from './Routes';
+import { homeRoute } from '../Routes';
+import { logoutRoute } from '../Routes';
 import { useNavigate } from 'react-router-dom';
 
 export const PageLayout = props => {

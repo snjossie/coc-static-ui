@@ -2,7 +2,7 @@ import './index.css';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-import AppContainer from './AppContainer';
+import App from './components/App';
 import CssBaseline from '@mui/material/CssBaseline';
 import {PublicClientApplication} from "@azure/msal-browser";
 import React from 'react';
@@ -24,7 +24,7 @@ root.render(
   <React.StrictMode>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline enableColorScheme />
-        <AppContainer publicClientApp={msalInstance} />
+        <App publicClientApp={msalInstance} />
       </ThemeProvider>
   </React.StrictMode>
 );

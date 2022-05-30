@@ -1,9 +1,9 @@
-import './App.css';
+import '../App.css';
 
 import * as React from 'react';
 
 import { Backdrop, CircularProgress, Divider, Grid } from '@mui/material';
-import { getInvestigator, updateInvestigator } from './InvestigatorService';
+import { getInvestigator, updateInvestigator } from '../InvestigatorService';
 
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import Button from '@mui/material/Button';
@@ -14,16 +14,16 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import IconButton from '@mui/material/IconButton';
 import { InputAdornment } from '@mui/material';
 import PsychologyIcon from '@mui/icons-material/Psychology';
-import { ResourcePanel } from './ResourcePanel';
-import { SkillComponent } from './SkillComponent';
+import ResourcePanel from '../components/ResourcePanel';
+import SkillComponent  from '../components/SkillComponent';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography';
-import { checkIfValidUUID } from './util/UuidFuncs';
-import { chunk } from './util/ArrayFuncs';
-import { rollDice } from './dice/DiceFuncs';
-import { useParams } from 'react-router-dom'
+import { checkIfValidUUID } from '../util/UuidFuncs';
+import { chunk } from '../util/ArrayFuncs';
+import { rollDice } from '../dice/DiceFuncs';
+import { useParams } from 'react-router-dom';
 
 function InvestigatorPage() {
 
@@ -91,6 +91,18 @@ function InvestigatorPage() {
     setSnackPack((prev) => [...prev, { message, key: new Date().getTime() }]);
   };
 
+  const handleSkillSuccess = (skill, event) => {
+
+    console.log(`${skill.name} successfully-used value toggled`);
+
+    const replacement = { ...skills };
+    const s = replacement.skills.find(s => s.name === skill.name);
+    s.usedSuccessfully = !s.usedSuccessfully;
+
+    setInvestigator(replacement);
+    handleSave();
+  }
+
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -117,24 +129,32 @@ function InvestigatorPage() {
     handleSave();
   }
 
-  const handleExited = () => {
-    setMessageInfo(undefined);
-  };
-
-  
-  const handleLuckChange = event => {
-    const replacement = { ...skills };
-    replacement.luck.current = event.target.value;
-
-    setSkills(replacement);
-  }
-
   const handleSave = async () => {
     try {
       await updateInvestigator(skills);
     } catch (ex){
       alert("Failed to save" + ex);
     }
+  };
+  
+  const onChangeSubObject = (field, x, event) => {
+    const value = event.target.value;
+
+    const replacement = { ...skills };
+    replacement[field][x] = value;
+
+    setSkills(replacement);
+  };
+
+  const handleExited = () => {
+    setMessageInfo(undefined);
+  };
+
+  const handleLuckChange = event => {
+    const replacement = { ...skills };
+    replacement.luck.current = event.target.value;
+
+    setSkills(replacement);
   }
 
   const action = (
@@ -180,6 +200,7 @@ function InvestigatorPage() {
           <ResourcePanel
             investigator={investigator ?? {}}
             onChange={handleChange}
+            // onFieldBlur={handleSave}
           />
 
           <div>
@@ -219,6 +240,7 @@ function InvestigatorPage() {
                   margin="dense"
                   sx={{ width: "5em" }}
                   inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                  disabled={true}
                   onChange={handleChange}
                 />
               </Grid>
@@ -263,7 +285,8 @@ function InvestigatorPage() {
                       margin="dense"
                       sx={{ minWidth: "5em" }}
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                      onChange={handleChange}
+                      onChange={onChangeSubObject.bind(this, "healthPoints", "current")}
+                      onBlur={handleSave}
                     />
                     <Typography sx={{ alignSelf: "center" }}>/</Typography>
                     <TextField
@@ -273,7 +296,8 @@ function InvestigatorPage() {
                       margin="dense"
                       sx={{ minWidth: "5em" }}
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                      onChange={handleChange}
+                      onChange={onChangeSubObject.bind(this, "healthPoints", "max")}
+                      onBlur={handleSave}
                     />
                   </Stack>
                   <Stack direction="row">
@@ -291,15 +315,19 @@ function InvestigatorPage() {
                       margin="dense"
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                       sx={{ minWidth: "5em" }}
+                      onChange={onChangeSubObject.bind(this, "sanityPoints", "current")}
+                      onBlur={handleSave}
                     />
                     <Typography sx={{ alignSelf: "center" }}>/</Typography>
                     <TextField
                       label="Max Sanity"
-                      value={skills?.sanityPoints?.current ?? ""}
+                      value={skills?.sanityPoints?.max ?? ""}
                       size="small"
                       margin="dense"
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                       sx={{ minWidth: "5em" }}
+                      onChange={onChangeSubObject.bind(this, "sanityPoints", "max")}
+                      onBlur={handleSave}
                     />
                   </Stack>
                   <Stack direction="row">
@@ -318,15 +346,19 @@ function InvestigatorPage() {
                       margin="dense"
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                       sx={{ minWidth: "5em" }}
+                      onChange={onChangeSubObject.bind(this, "magicPoints", "current")}
+                      onBlur={handleSave}
                     />
                     <Typography sx={{ alignSelf: "center" }}>/</Typography>
                     <TextField
                       label="Max MP"
-                      value={skills?.magicPoints?.current ?? ""}
+                      value={skills?.magicPoints?.max ?? ""}
                       size="small"
                       margin="dense"
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                       sx={{ minWidth: "5em" }}
+                      onChange={onChangeSubObject.bind(this, "magicPoints", "max")}
+                      onBlur={handleSave}
                     />
                   </Stack>
                 </Stack>
@@ -354,11 +386,13 @@ function InvestigatorPage() {
                       <SkillComponent
                         key={item.name}
                         name={item.name}
+                        hasCheckbox={true}
                         className={j % 2 === 1 ? "banding" : null}
                         successValue={item.successValue}
                         skill={item}
                         rollDice={rollDice}
-                        openFunc={message => handleClick(message)()} />
+                        openFunc={message => handleClick(message)()}
+                        handleSkillSuccess={handleSkillSuccess} />
                     )}
 
                   </Stack>
