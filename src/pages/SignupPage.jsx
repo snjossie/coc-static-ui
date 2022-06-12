@@ -1,20 +1,21 @@
+import { useNavigate, useSearchParams } from "react-router-dom";
+
 import handleRedirectAuth from "../util/auth";
 import { loginRequest } from "../AuthConfig";
 import { selectInvestigatorRoute } from '../Routes';
 import { signupUser } from '../InvestigatorService';
 import { useEffect } from 'react';
 import { useMsal } from "@azure/msal-react";
-import { useNavigate } from "react-router-dom";
-import { useParams } from 'react-router-dom';
 
 export const SignupPage = props => {
 
-    const { key } = useParams();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const key = searchParams.get("key");
 
     const { instance, accounts } = useMsal();
 
-    handleRedirectAuth(instance, accounts, navigate);
+    handleRedirectAuth(instance, accounts, navigate, searchParams);
 
     useEffect(() => {
         const doGet = async () => {
@@ -25,7 +26,11 @@ export const SignupPage = props => {
                         console.log(e);
                     });
                 } else if (loginType === "redirect") {
-                    instance.loginRedirect(loginRequest).catch(e => {
+                    
+                    instance.loginRedirect({ 
+                        ...loginRequest,
+                        state: key
+                    }).catch(e => {
                         console.log(e);
                     });
                 }
@@ -40,7 +45,7 @@ export const SignupPage = props => {
         }
 
         doGet().catch(console.error);
-    }, [accounts, instance, key, navigate]);
+    }, [accounts, instance, key, navigate, searchParams]);
 
     return (<></>);
 }
