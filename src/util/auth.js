@@ -4,13 +4,13 @@ import { signupUser } from '../InvestigatorService';
 function handleRedirectAuth(instance, accounts, navigate, queryParams) {
     
     instance.handleRedirectPromise().then((tokenResponse) => {
-        const key = queryParams.get("key");
+        const key = queryParams.get("key") || tokenResponse?.state;
 
         if (tokenResponse !== null) {
             // Successful auth
 
             if (key) {
-                tryDoSignup(navigate, queryParams);
+                tryDoSignup(navigate, key);
             } else if (tokenResponse.state) {
                 tryDoSignup(navigate, tokenResponse.state);
             } else {
