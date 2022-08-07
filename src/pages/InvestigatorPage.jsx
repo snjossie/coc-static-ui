@@ -320,6 +320,7 @@ function InvestigatorPage() {
     const newSkills = { ...skills };
     newSkills.luck.current = _.clamp(skills.luck.current + recoveryRoll.total, 0, 99);
     setSkills(newSkills);
+    handleSave(newSkills);
 
     const message = new LuckRollSummary(`Recovery roll: ${luckRoll}`, `Recovered: ${recoveryRoll} luck`);
 
