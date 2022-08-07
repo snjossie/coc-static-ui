@@ -479,7 +479,7 @@ function InvestigatorPage() {
                     inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                     sx={{ width: "5em" }}
                     onChange={handleLuckChange}
-                    onBlur={handleSave}
+                    onBlur={e => handleSave()}
                   />
                   <Button
                     variant='outlined'
