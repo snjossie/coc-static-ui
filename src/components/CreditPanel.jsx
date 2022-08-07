@@ -1,9 +1,27 @@
 import { InputAdornment, TextField, Typography } from "@mui/material";
+import React, { useEffect } from "react";
 
-import React from "react";
 import Stack from "@mui/material/Stack";
 
 function CreditPanel(props) {
+
+    const [cash, setCash] = React.useState(0);
+    const [spendingLevel, setSpendingLevel] = React.useState(0);
+    const [assets, setAssets] = React.useState("");
+
+    useEffect(() => {
+        setCash(props.cash);
+        setSpendingLevel(props.spendingLevel);
+        setAssets(props.assets);
+    }, [props]);
+
+    const onBlur = event => {
+        if (cash !== props.cash || spendingLevel !== props.spendingLevel || assets !== props.assets) {
+            props.onCashAssetsChanged(event);
+            props.handleCreditBlur(event);
+        }
+    };
+
     return (
         <React.Fragment>
             <Typography variant="h5">Cash/Assets</Typography>
@@ -15,7 +33,10 @@ function CreditPanel(props) {
                     InputProps={{
                         startAdornment: <InputAdornment position="start">$</InputAdornment>,
                     }}
-                    value={props.cash}
+                    value={cash}
+                    name="cash"
+                    onChange={e => setCash(e.target.value)}
+                    onBlur={onBlur}
                 />
                 <TextField 
                     label="Cash"
@@ -24,14 +45,21 @@ function CreditPanel(props) {
                     InputProps={{
                         startAdornment: <InputAdornment position="start">$</InputAdornment>,
                     }}
-                    value={props.spendingLevel}
+                    value={spendingLevel}
+                    name="spendingLevel"
+                    onChange={e => setSpendingLevel(e.target.value)}
+                    onBlur={onBlur}
                 />
                 <TextField 
                     label="Assets (enter to add new lines)"
                     size="small"
                     margin="dense"
                     multiline={true}
-                    value={props.assets}
+                    rows="5"
+                    value={assets}
+                    name="assets"
+                    onChange={e => setAssets(e.target.value)}
+                    onBlur={onBlur}
                 />
             </Stack>
         </React.Fragment>);

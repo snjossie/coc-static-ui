@@ -70,7 +70,7 @@ export function rollDamage(rollDefinition, successValue) {
 
     let attackMsg = `Attack Roll: ${attackResult} (${severity})`;
     if (attackResult.total <= extremeSuccessValue || attackResult.total === 1) {
-        attackMsg += " -- Extreme or critical success; the keeper for how to handle";
+        attackMsg += " -- Extreme or critical success; consult the keeper for how to handle";
     }
 
     return new DamageRollSummary(attackMsg, detailMsg);
