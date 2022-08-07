@@ -78,8 +78,9 @@ function InvestigatorPage() {
     const name = event.target.name;
     const value = event.target.checked;
 
-    setSkills({ ...skills, [name]: value });
-    handleSave();
+    const replacement = { ...skills, [name]: value };
+    setSkills(replacement);
+    handleSave(replacement);
   };
 
   const handleWeaponFieldBlur = () => {
