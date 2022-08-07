@@ -534,7 +534,7 @@ function InvestigatorPage() {
                       sx={{ minWidth: "5em" }}
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                       onChange={onChangeSubObject.bind(this, "healthPoints", "current")}
-                      onBlur={handleSave}
+                      onBlur={e => handleSave()}
                     />
                     <Typography sx={{ alignSelf: "center" }}>/</Typography>
                     <TextField
@@ -545,7 +545,7 @@ function InvestigatorPage() {
                       sx={{ minWidth: "5em" }}
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                       onChange={onChangeSubObject.bind(this, "healthPoints", "max")}
-                      onBlur={handleSave}
+                      onBlur={e => handleSave()}
                     />
                   </Stack>
                   <Stack direction="row">
@@ -564,7 +564,7 @@ function InvestigatorPage() {
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                       sx={{ minWidth: "5em" }}
                       onChange={onChangeSubObject.bind(this, "sanityPoints", "current")}
-                      onBlur={handleSave}
+                      onBlur={e => handleSave()}
                     />
                     <Typography sx={{ alignSelf: "center" }}>/</Typography>
                     <TextField
@@ -575,7 +575,7 @@ function InvestigatorPage() {
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                       sx={{ minWidth: "5em" }}
                       onChange={onChangeSubObject.bind(this, "sanityPoints", "max")}
-                      onBlur={handleSave}
+                      onBlur={e => handleSave()}
                     />
                   </Stack>
                   <Stack direction="row">
@@ -595,7 +595,7 @@ function InvestigatorPage() {
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                       sx={{ minWidth: "5em" }}
                       onChange={onChangeSubObject.bind(this, "magicPoints", "current")}
-                      onBlur={handleSave}
+                      onBlur={e => handleSave()}
                     />
                     <Typography sx={{ alignSelf: "center" }}>/</Typography>
                     <TextField
@@ -606,7 +606,7 @@ function InvestigatorPage() {
                       inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                       sx={{ minWidth: "5em" }}
                       onChange={onChangeSubObject.bind(this, "magicPoints", "max")}
-                      onBlur={handleSave}
+                      onBlur={e => handleSave()}
                     />
                   </Stack>
                 </Stack>
