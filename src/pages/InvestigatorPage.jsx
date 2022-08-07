@@ -78,13 +78,13 @@ function InvestigatorPage() {
     const name = event.target.name;
     const value = event.target.checked;
 
-    setSkills({ ...skills, [name]: value });
-    handleSave();
+    const replacement = { ...skills, [name]: value };
+    setSkills(replacement);
+    handleSave(replacement);
   };
 
   const handleWeaponFieldBlur = () => {
     if (hasWeaponUpdate) {
-      // handleSave();
       setHasWeaponUpdate(false);
     }
   }
@@ -116,7 +116,7 @@ function InvestigatorPage() {
 
     setSkills(replacement);
     setHasWeaponUpdate(true);
-    handleSave();
+    handleSave(replacement);
   }
 
   const handleWeaponChange = (index, event) => {
@@ -191,7 +191,7 @@ function InvestigatorPage() {
     s.usedSuccessfully = !s.usedSuccessfully;
 
     setInvestigator(replacement);
-    handleSave();
+    handleSave(replacement);
   }
 
   const handleSkillImprovements = () => {
@@ -241,7 +241,7 @@ function InvestigatorPage() {
     }
 
     setInvestigator(replacement);
-    handleSave();
+    handleSave(replacement);
 
     setImprovements(results);
     setOpenDialog(true);
@@ -251,7 +251,7 @@ function InvestigatorPage() {
     const replacement = { ...skills };
     replacement.talents = event.target.value;
     setSkills(replacement);
-    handleSave();
+    handleSave(replacement);
   }
 
   const onCashAssetsChanged = event => {   
@@ -306,10 +306,10 @@ function InvestigatorPage() {
       const newSkills = { ...skills }
       newSkills.luck.current = skills.luck.current - luckAmount;
       setSkills(newSkills);
+      handleSave(newSkills);
     }
 
     handleClose(event, "spentLuck");
-    handleSave();
   }
   
   const handleUpdateLuck = (luckRoll, recoveryRoll) => {
@@ -479,7 +479,7 @@ function InvestigatorPage() {
                     inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                     sx={{ width: "5em" }}
                     onChange={handleLuckChange}
-                    onBlur={handleSave}
+                    onBlur={e => handleSave()}
                   />
                   <Button
                     variant='outlined'
