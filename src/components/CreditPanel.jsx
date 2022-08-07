@@ -18,7 +18,7 @@ function CreditPanel(props) {
     const onBlur = event => {
         if (cash !== props.cash || spendingLevel !== props.spendingLevel || assets !== props.assets) {
             props.onCashAssetsChanged(event);
-            props.handleCreditBlur(event);
+            // props.handleCreditBlur(event);
         }
     };
 

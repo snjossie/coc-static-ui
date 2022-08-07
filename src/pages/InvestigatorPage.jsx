@@ -54,6 +54,10 @@ function InvestigatorPage() {
   const [investigator, setInvestigator] = React.useState({ name: "", age: "", sex: "", archetype: "", birthplace: "", occupation: "" });
   const [skills, setSkills] = React.useState({});
 
+  const skillsRef = React.useRef();
+
+  skillsRef.current = skills;
+
   const [hasWeaponUpdate, setHasWeaponUpdate] = React.useState(false);
 
   const handleResourceChange = event => {
@@ -80,7 +84,7 @@ function InvestigatorPage() {
 
   const handleWeaponFieldBlur = () => {
     if (hasWeaponUpdate) {
-      handleSave();
+      // handleSave();
       setHasWeaponUpdate(false);
     }
   }
@@ -129,7 +133,7 @@ function InvestigatorPage() {
 
     setSkills(replacement);
     setHasWeaponUpdate(true);
-    //handleSave();
+    handleSave(replacement);
   }
 
   React.useEffect(() => {
@@ -258,6 +262,7 @@ function InvestigatorPage() {
     replacement[name] = value;
     
     setSkills(replacement);
+    handleSave(replacement);
   }
 
   const handleClose = (event, reason) => {
@@ -321,9 +326,9 @@ function InvestigatorPage() {
     setSnackPack((prev) => [...prev, { message, key: new Date().getTime() }]);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (value) => {
     try {
-      await updateInvestigator(skills);
+      await updateInvestigator(value || skills);
     } catch (ex){
       alert("Failed to save" + ex);
     }
