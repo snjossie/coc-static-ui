@@ -2,13 +2,18 @@ import '../App.css';
 
 import * as React from 'react';
 
-import { Backdrop, CircularProgress, Divider, Grid } from '@mui/material';
+import { ArbitraryRollSummary, LuckRollSummary } from '../SkillRollSummary';
+import { Backdrop, Box, CircularProgress, Divider, Grid, Link, SvgIcon } from '@mui/material';
 import { getInvestigator, updateInvestigator } from '../InvestigatorService';
+import { rollArbitrarily, rollDamage, rollDice, rollLuckRecovery } from '../dice/DiceFuncs';
 
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import Button from '@mui/material/Button';
 import CasinoIcon from '@mui/icons-material/Casino';
 import CloseIcon from '@mui/icons-material/Close';
+import { ReactComponent as CloverIcon } from '../img/clover.svg'
+import CreditPanel from '../components/CreditPanel';
+import { DiceRoll } from '@dice-roller/rpg-dice-roller';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import IconButton from '@mui/material/IconButton';
@@ -16,24 +21,35 @@ import { InputAdornment } from '@mui/material';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import ResourcePanel from '../components/ResourcePanel';
 import SkillComponent  from '../components/SkillComponent';
+import {SkillImprovementDialog} from '../components/SkillImprovementDialog';
+import { SkillImprovementRollSummary } from '../dice/SkillImprovementRollSummary';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack'
+import TalentsPanel from '../components/TalentsPanel';
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography';
+import WeaponsPanel from '../components/WeaponsPanel';
+import _ from 'lodash';
 import { checkIfValidUUID } from '../util/UuidFuncs';
 import { chunk } from '../util/ArrayFuncs';
-import { rollDice } from '../dice/DiceFuncs';
+import { determineDamageBonus } from '../util/DamageBonusCalc';
+import { getCharacteristicValue } from '../util/CharacteristicsUtil';
 import { useParams } from 'react-router-dom';
 
 function InvestigatorPage() {
 
   const { id } = useParams();
 
+  const [arbitraryRoll, setArbitraryRoll] = React.useState("1d6");
+
   const [snackPack, setSnackPack] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [messageInfo, setMessageInfo] = React.useState(undefined);
 
+  const [openDialog, setOpenDialog] = React.useState(false);
+
   const [loading, setLoading] = React.useState(false);
+  const [improvements, setImprovements] = React.useState([]);
 
   const [investigator, setInvestigator] = React.useState({ name: "", age: "", sex: "", archetype: "", birthplace: "", occupation: "" });
   const [skills, setSkills] = React.useState({});
@@ -44,6 +60,46 @@ function InvestigatorPage() {
 
     setInvestigator({ ...investigator, [name]: value });
   };
+
+  const handleAddWeapon = () => { 
+    let replacement = {...skills};
+    replacement.weapons.push({ ammo: "",
+      damageRoll: "1d3 + db",
+      extremeSuccessValue: 0,
+      hardSuccessValue: 0,
+      malfunction: "",
+      name: "Example Weapon",
+      numberOfAttacks: 1,
+      range: "",
+      successValue: 0
+    });
+    
+    setSkills(replacement);
+  }
+
+  const handleDeleteWeapon = (i, e) => {
+    let replacement = {...skills};
+    replacement.weapons.splice(i, 1);
+
+    setSkills(replacement);
+    handleSave();
+  }
+
+  const handleWeaponChange = (index, event) => {
+    const name = event.target.name;
+    const value = event.target.value;
+  
+    let replacement = {...skills};
+    replacement.weapons[index][name] = value;
+
+    if (name === "successValue") {
+      replacement.weapons[index]["hardSuccessValue"] = Math.floor(value * 0.5);
+      replacement.weapons[index]["extremeSuccessValue"] = Math.floor(value * 0.2);
+    }
+
+    setSkills(replacement);
+    debouncedSave();
+  }
 
   React.useEffect(() => {
     const doGet = async () => {
@@ -103,6 +159,56 @@ function InvestigatorPage() {
     handleSave();
   }
 
+  const handleSkillImprovements = () => { 
+
+    const results = [];
+    const replacement = { ...skills };
+
+    for(let s of skills.skills) {
+      if(s.usedSuccessfully) {
+        const si = replacement.skills.find(sk => sk.name === s.name);
+        const currentSkillValue = s.successValue;
+        si.usedSuccessfully = false;
+
+        const roll = new DiceRoll("1d100");
+        if (roll.total > s.successValue || s.successValue > 95) {
+          const improvementRoll = new DiceRoll("1d10");
+          console.log(`skill ${s.name} improves from ${s.successValue} to ${s.successValue + improvementRoll.total}`);
+
+          si.successValue += improvementRoll.total;
+
+          if(s.successValue < 90 && s.successValue + improvementRoll.total >= 90) {
+            const sanityRoll = new DiceRoll("2d6");
+
+            replacement.sanityPoints.current = 
+              _.clamp(replacement.sanityPoints.current + sanityRoll.total, 0, replacement.sanityPoints.max);
+
+            console.log(`attaining 90% skill recovers ${sanityRoll.total} sanity`);
+            results.push(new SkillImprovementRollSummary(roll, s, currentSkillValue, improvementRoll, sanityRoll, true));
+          } else {
+            results.push(new SkillImprovementRollSummary(roll, s, currentSkillValue, improvementRoll, 0, true));
+          }
+        } else {
+          console.log(`skill ${s.name} does not improve`);
+          results.push(new SkillImprovementRollSummary(roll, s, currentSkillValue, 0, 0, false));
+        }
+      }
+    }
+
+    setInvestigator(replacement);
+    handleSave();
+
+    setImprovements(results);
+    setOpenDialog(true);
+  }
+
+  const onTalentsChanged = (event) => {
+    const replacement = { ...skills };
+    replacement.talents = event.target.value;
+    setSkills(replacement);
+    handleSave();
+  }
+
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -110,6 +216,27 @@ function InvestigatorPage() {
 
     setOpen(false);
   };
+
+  const handleCloseDialog = (value) => {
+    setOpenDialog(false);
+  };
+
+  const handleDamageRoll = (rollDefinition, successValue) => {
+    let dmgRollDef = rollDefinition;
+    if(rollDefinition?.toLowerCase()?.includes('db'))
+    {
+      const str = getCharacteristicValue("STR", skills?.characteristics);
+      const siz = getCharacteristicValue("SIZ", skills?.characteristics);
+      const db = determineDamageBonus(str, siz);
+      console.log(`damage bonus determined to be: ${db}`);
+
+      dmgRollDef = rollDefinition.toLowerCase().replace("db", " " + db);
+    }
+
+    const message = rollDamage(dmgRollDef, successValue);
+
+    setSnackPack((prev) => [...prev, { message, key: new Date().getTime() }]);
+  } 
 
   const handleSpendLuck = (event, luckAmount) => {
     if (!luckAmount) {
@@ -128,6 +255,20 @@ function InvestigatorPage() {
     handleClose(event, "spentLuck");
     handleSave();
   }
+  
+  const handleUpdateLuck = (luckRoll, recoveryRoll) => {
+    if (!luckRoll || !recoveryRoll) {
+      alert("Luck recovery failed :(");      
+    }
+
+    const newSkills = { ...skills };
+    newSkills.luck.current = _.clamp(skills.luck.current + recoveryRoll.total, 0, 99);
+    setSkills(newSkills);
+
+    const message = new LuckRollSummary(`Recovery roll: ${luckRoll}`, `Recovered: ${recoveryRoll} luck`);
+
+    setSnackPack((prev) => [...prev, { message, key: new Date().getTime() }]);
+  };
 
   const handleSave = async () => {
     try {
@@ -137,6 +278,8 @@ function InvestigatorPage() {
     }
   };
   
+  const debouncedSave = React.useMemo(() => _.debounce(handleSave, 300), [skills]);
+
   const onChangeSubObject = (field, x, event) => {
     const value = event.target.value;
 
@@ -155,6 +298,17 @@ function InvestigatorPage() {
     replacement.luck.current = event.target.value;
 
     setSkills(replacement);
+  }
+
+  const handleArbitraryRollChanged = event => {
+    setArbitraryRoll(event.target.value);
+  }
+
+  const handleDoArbitraryRoll = () => {
+    const rollResult = rollArbitrarily(arbitraryRoll);
+    const message = new ArbitraryRollSummary("Arbitrary Roll", rollResult);
+    
+    setSnackPack((prev) => [...prev, { message, key: new Date().getTime() }]);
   }
 
   const action = (
@@ -224,7 +378,7 @@ function InvestigatorPage() {
               )}
             </Grid>
 
-            <Grid container columnSpacing={0} justifyContent="space-evenly">
+            <Grid container columnSpacing={0} justifyContent="space-evenly" alignItems="stretch">
               <Grid item xs={3}>
                 <TextField
                   InputProps={{
@@ -243,15 +397,54 @@ function InvestigatorPage() {
                   disabled={true}
                   onChange={handleChange}
                 />
+                <Grid item xs={3}>
+                  <TextField 
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton edge="end" onClick={handleDoArbitraryRoll}>
+                            <CasinoIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                    value={arbitraryRoll}
+                    onChange={handleArbitraryRollChanged}
+                    onKeyPress={(ev) => {
+                      if (ev.key === 'Enter') {
+                        handleDoArbitraryRoll(ev);
+                        ev.preventDefault();
+                      }
+                    }}
+                    fullWidth={true}
+                    label="Arbitrary Roll"
+                    size="small"
+                    margin="dense"
+                    sx={{ width: "15em" }}
+                  />
+                </Grid>
+                <Grid item xs={3}>
+                  <Box sx={{ width: "15em" }}>
+                  <Link 
+                    href="https://dice-roller.github.io/documentation/guide/notation/dice.html"
+                    target="_blank"
+                    sx={{ width: "15em" }}
+                  >
+                    Dice Notation
+                  </Link>
+                  </Box>
+                </Grid>
+
               </Grid>
 
               <Grid item xs={3}>
-                <Stack direction="row">
+                <Stack direction="column">
                   <TextField
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <CasinoIcon color="success" />
+                          {/* <CasinoIcon color="success" /> */}
+                          <SvgIcon component={CloverIcon} color="success" inheritViewBox />
                         </InputAdornment>
                       )
                     }}
@@ -264,6 +457,12 @@ function InvestigatorPage() {
                     onChange={handleLuckChange}
                     onBlur={handleSave}
                   />
+                  <Button
+                    variant='outlined'
+                    onClick={e => rollLuckRecovery(skills?.luck?.current ?? 0, handleUpdateLuck)}
+                  >
+                    Luck Recovery
+                  </Button>
                 </Stack>
               </Grid>
 
@@ -405,15 +604,56 @@ function InvestigatorPage() {
         <Divider />
 
         <div className="section">
-          <Typography variant="h5">Weapons go here</Typography>
+          <Stack direction="row" spacing={2}>
+            <Typography variant="h5">Weapons</Typography>
+            <Button onClick={handleAddWeapon}>Add Weapon</Button>
+          </Stack>
+          <WeaponsPanel
+            weapons={skills?.weapons}
+            handleDamageRoll={handleDamageRoll}
+            handleWeaponChange={handleWeaponChange}
+            handleDeleteWeapon={handleDeleteWeapon}
+          />
         </div>
 
         <Divider />
 
         <div className="section">
-          <Typography variant="h5">Credit/Pulp Skills go here</Typography>
+          <Grid container columnSpacing={2}>
+            <Grid item xs={6}>
+              <CreditPanel 
+                cash={skills.cash ?? 0}
+                assets={skills.assets ?? 0}
+                spendingLevel={skills.spendingLevel ?? 0}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TalentsPanel
+                talents={skills.talents ?? []}
+                onTalentsChanged={onTalentsChanged}
+              />
+            </Grid>
+          </Grid>
         </div>
       </div>
+
+      <Divider />
+      <div className="section" style={{display: "flex", justifyContent: "flex-end"}}>
+        <Button
+          variant="contained"
+          color="warning"
+          size="small"
+          onClick={handleSkillImprovements}
+        >
+          Execute Skill Improvement
+        </Button>
+      </div>
+
+      <SkillImprovementDialog
+        openDialog={openDialog}
+        handleCloseDialog={handleCloseDialog}
+        improvements={improvements}
+      />
     </React.Fragment>
 
   );
