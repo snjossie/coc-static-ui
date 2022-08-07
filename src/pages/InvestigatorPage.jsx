@@ -85,7 +85,6 @@ function InvestigatorPage() {
 
   const handleWeaponFieldBlur = () => {
     if (hasWeaponUpdate) {
-      // handleSave();
       setHasWeaponUpdate(false);
     }
   }
@@ -117,7 +116,7 @@ function InvestigatorPage() {
 
     setSkills(replacement);
     setHasWeaponUpdate(true);
-    handleSave();
+    handleSave(replacement);
   }
 
   const handleWeaponChange = (index, event) => {
@@ -192,7 +191,7 @@ function InvestigatorPage() {
     s.usedSuccessfully = !s.usedSuccessfully;
 
     setInvestigator(replacement);
-    handleSave();
+    handleSave(replacement);
   }
 
   const handleSkillImprovements = () => {
@@ -242,7 +241,7 @@ function InvestigatorPage() {
     }
 
     setInvestigator(replacement);
-    handleSave();
+    handleSave(replacement);
 
     setImprovements(results);
     setOpenDialog(true);
@@ -252,7 +251,7 @@ function InvestigatorPage() {
     const replacement = { ...skills };
     replacement.talents = event.target.value;
     setSkills(replacement);
-    handleSave();
+    handleSave(replacement);
   }
 
   const onCashAssetsChanged = event => {   
@@ -307,10 +306,10 @@ function InvestigatorPage() {
       const newSkills = { ...skills }
       newSkills.luck.current = skills.luck.current - luckAmount;
       setSkills(newSkills);
+      handleSave(newSkills);
     }
 
     handleClose(event, "spentLuck");
-    handleSave();
   }
   
   const handleUpdateLuck = (luckRoll, recoveryRoll) => {
