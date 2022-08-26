@@ -226,7 +226,7 @@ function InvestigatorPage() {
             const sanityRoll = new DiceRoll("2d6");
 
             replacement.sanityPoints.current = 
-              _.clamp(replacement.sanityPoints.current + sanityRoll.total, 0, replacement.sanityPoints.max);
+              _.clamp(parseInt(replacement.sanityPoints.current) + sanityRoll.total, 0, parseInt(replacement.sanityPoints.max));
 
             console.log(`attaining 90% skill recovers ${sanityRoll.total} sanity`);
             results.push(new SkillImprovementRollSummary(roll, s, currentSkillValue, improvementRoll, sanityRoll, true));
@@ -300,11 +300,11 @@ function InvestigatorPage() {
       return;
     }
 
-    if (luckAmount > skills.luck.current) {
+    if (luckAmount > parseInt(skills.luck.current)) {
       alert("Not enough luck");
     } else {
       const newSkills = { ...skills }
-      newSkills.luck.current = skills.luck.current - luckAmount;
+      newSkills.luck.current = parseInt(skills.luck.current) - luckAmount;
       setSkills(newSkills);
       handleSave(newSkills);
     }
@@ -318,7 +318,7 @@ function InvestigatorPage() {
     }
 
     const newSkills = { ...skills };
-    newSkills.luck.current = _.clamp(skills.luck.current + recoveryRoll.total, 0, 99);
+    newSkills.luck.current = _.clamp(parseInt(skills.luck.current) + recoveryRoll.total, 0, 99);
     setSkills(newSkills);
     handleSave(newSkills);
 
