@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { createInvestigator, getBlankInvestigator } from "../InvestigatorService";
+import React, { useCallback, useEffect } from "react";
+import { createInvestigator, getBlankInvestigator, getInvestigator, updateInvestigator } from "../InvestigatorService";
 
 import Box from '@mui/material/Box';
 import Button from "@mui/material/Button";
@@ -7,11 +7,14 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { green } from '@mui/material/colors';
+import { useParams } from "react-router-dom";
 
 function EntryForm() {
 
     const [loading, setLoading] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
+
+    const { id } = useParams();
 
     const [investigator, setInvestigator] = React.useState({
         characteristics: [{}, {}, {}, {}, {}, {}, {}],
@@ -45,19 +48,40 @@ function EntryForm() {
         setInvestigator(replacement);
     };
 
-    const doGet = async () => {
-        const response = await getBlankInvestigator();
+    const onChangeIndexedName = (field, i, event) => {
+        const value = event.target.value;
+
+        const replacement = { ...investigator };
+        replacement[field][i].name = value;
+
+        setSuccess(false);
+        setInvestigator(replacement);
+    };
+
+    const doGet = useCallback(async () => {
+        let response;
+
+        if(id) {
+            response = await getInvestigator(id);
+        } else {
+            response = await getBlankInvestigator();
+        }
 
         setSuccess(false);
         setInvestigator(response.data);
-    };
+    }, [id]);
 
     const doPost = async () => {
         setSuccess(false);
         setLoading(true);
 
         try {
-            const response = await createInvestigator(investigator);
+            let func = createInvestigator;
+            if(id) {
+                func = updateInvestigator;
+            }
+
+            const response = await func(investigator);
             setSuccess(true);
             console.log(response);
 
@@ -77,11 +101,24 @@ function EntryForm() {
         }),
     };
 
-    const doDump = () => console.log(investigator);
+    const doDump = () => { 
+        console.log(investigator);
+
+        function download(content, fileName, contentType) {
+            var a = document.createElement("a");
+            var file = new Blob([content], {type: contentType});
+            a.href = URL.createObjectURL(file);
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        download(JSON.stringify(investigator, null, 2), 'json.txt', 'text/plain');
+    }
 
     useEffect(() => {
         doGet();
-    }, []);
+    }, [doGet]);
 
     return (
         <>
@@ -114,7 +151,7 @@ function EntryForm() {
                         <Button variant="outlined" onClick={doGet}>Create New</Button>
                     </Box>
                     <Box sx={{ m: 1, position: 'relative' }}>
-                        <Button variant="outlined" onClick={doDump}>Dump Data</Button>
+                        <Button variant="outlined" onClick={doDump}>Export Investigator Data</Button>
                     </Box>
                 </Box>
 
@@ -308,15 +345,35 @@ function EntryForm() {
                     onChange={onChange}
                 />
                 {investigator?.skills?.map((item, i) => (
-                    <TextField
-                        key={i}
-                        value={item.successValue ?? ""}
-                        name={`skill[${i}]`}
-                        label={item.name}
-                        size="small"
-                        margin="dense"
-                        onChange={onChangeIndexed.bind(this, "skills", i)}
-                    />
+                    item.hasSubName ? 
+                        <Stack direction="row" key={i}>
+                            <TextField
+                                value={item.name ?? ""}
+                                name={`skill_subname[${i}]`}
+                                label="Skill name"
+                                size="small"
+                                margin="dense"
+                                onChange={onChangeIndexedName.bind(this, "skills", i)}
+                            />
+                            <TextField
+                                value={item.successValue ?? ""}
+                                name={`skill[${i}]`}
+                                label={item.name}
+                                size="small"
+                                margin="dense"
+                                onChange={onChangeIndexed.bind(this, "skills", i)}
+                            />        
+                        </Stack> 
+                        :
+                        <TextField
+                            key={i}
+                            value={item.successValue ?? ""}
+                            name={`skill[${i}]`}
+                            label={item.name}
+                            size="small"
+                            margin="dense"
+                            onChange={onChangeIndexed.bind(this, "skills", i)}
+                        />
                 ))}
             </Stack>
         </>

@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { ArbitraryRollSummary, LuckRollSummary } from '../SkillRollSummary';
 import { Backdrop, Checkbox, CircularProgress, Divider, FormControlLabel, Grid, SvgIcon } from '@mui/material';
+import { calculateBuild, determineDamageBonus } from '../util/DamageBonusCalc';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { getInvestigator, updateInvestigator } from '../InvestigatorService';
 import { rollArbitrarily, rollDamage, rollDice, rollLuckRecovery } from '../dice/DiceFuncs';
 
@@ -16,6 +18,7 @@ import CreditPanel from '../components/CreditPanel';
 import { DiceRoll } from '@dice-roller/rpg-dice-roller';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import IconButton from '@mui/material/IconButton';
 import { InputAdornment } from '@mui/material';
 import PsychologyIcon from '@mui/icons-material/Psychology';
@@ -33,12 +36,12 @@ import { YesNoDialog } from '../components/YesNoDialog';
 import _ from 'lodash';
 import { checkIfValidUUID } from '../util/UuidFuncs';
 import { chunk } from '../util/ArrayFuncs';
-import { determineDamageBonus } from '../util/DamageBonusCalc';
+import { editInvestigatorRoute } from '../Routes';
 import { getCharacteristicValue } from '../util/CharacteristicsUtil';
-import { useParams } from 'react-router-dom';
 
 function InvestigatorPage() {
 
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const [snackPack, setSnackPack] = React.useState([]);
@@ -407,6 +410,17 @@ function InvestigatorPage() {
           message={messageInfo ? `${messageInfo.message.type} (${messageInfo.message.rollSummary})` : undefined}
           action={action}
         />
+
+        <Stack direction="row" className='section'>
+          <Button
+            variant='outlined'
+            onClick={e => navigate(generatePath(editInvestigatorRoute, { id }))}
+          >
+            Edit
+          </Button>
+        </Stack>
+
+
         <div className="container-basic-info section">
           <ResourcePanel
             investigator={investigator ?? {}}
@@ -436,7 +450,27 @@ function InvestigatorPage() {
             </Grid>
 
             <Grid container columnSpacing={0} justifyContent="space-evenly" alignItems="stretch">
-              <Grid item xs={3}>
+              <Grid item xs={3}>                
+                <Grid item xs={3}>
+                  <TextField
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <FitnessCenterIcon />
+                        </InputAdornment>
+                      )
+                    }}
+                    label="Build"
+                    value={calculateBuild(
+                      getCharacteristicValue("STR", skills?.characteristics),
+                      getCharacteristicValue("SIZ", skills?.characteristics)
+                    )}
+                    size="small"
+                    margin="dense"
+                    sx={{ width: "5em" }}
+                    disabled={true}
+                  />
+                </Grid>
                 <TextField
                   InputProps={{
                     startAdornment: (
