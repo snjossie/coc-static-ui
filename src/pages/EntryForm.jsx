@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { createInvestigator, getBlankInvestigator, getInvestigator, updateInvestigator } from "../InvestigatorService";
 
 import Box from '@mui/material/Box';
@@ -58,7 +58,7 @@ function EntryForm() {
         setInvestigator(replacement);
     };
 
-    const doGet = async () => {
+    const doGet = useCallback(async () => {
         let response;
 
         if(id) {
@@ -69,7 +69,7 @@ function EntryForm() {
 
         setSuccess(false);
         setInvestigator(response.data);
-    };
+    }, [id]);
 
     const doPost = async () => {
         setSuccess(false);
@@ -118,7 +118,7 @@ function EntryForm() {
 
     useEffect(() => {
         doGet();
-    }, []);
+    }, [doGet]);
 
     return (
         <>
