@@ -1,7 +1,7 @@
-import { Box, Chip, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { Box, Chip, FormControl, InputLabel, List, ListItem, ListItemText, MenuItem, Select, Stack } from "@mui/material";
+import { Talents, getTalentDescription } from "../util/Talents";
 
 import React from "react";
-import { Talents } from "../util/Talents";
 import { Typography } from "@mui/material";
 import _ from "lodash";
 
@@ -11,7 +11,8 @@ function TalentsPanel(props) {
 
     return (
         <React.Fragment>
-            <Typography variant="h5">Talents</Typography>            
+            <Typography variant="h5">Talents</Typography>
+            <Stack>
                 <FormControl margin="dense" fullWidth={true}>
                     <InputLabel>Talents</InputLabel>
                     <Select
@@ -39,6 +40,19 @@ function TalentsPanel(props) {
                         )}
                     </Select>
                 </FormControl>
+                <Stack>
+                    <List>
+                    {(props.talents ?? []).map(x => 
+                        <ListItem key={x}>
+                            <ListItemText
+                                primary={x}
+                                secondary={getTalentDescription(x)}
+                                />
+                            </ListItem>
+                    )}
+                    </List>
+                </Stack>
+            </Stack>
         </React.Fragment>);
 
 }

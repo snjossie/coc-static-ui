@@ -3,7 +3,7 @@ import '../index.css';
 import { Box, CircularProgress } from '@mui/material';
 import React, { Suspense, lazy } from 'react';
 import { Route, BrowserRouter as Router, Routes, useNavigate } from 'react-router-dom';
-import { homeRoute, logoutRoute, newInvestigatorRoute, selectInvestigatorRoute, signupRoute, viewInvestigatorRoute } from '../Routes';
+import { editInvestigatorRoute, homeRoute, logoutRoute, newInvestigatorRoute, selectInvestigatorRoute, signupRoute, viewInvestigatorRoute } from '../Routes';
 
 import ErrorBoundary from './ErrorBoundary';
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
@@ -55,7 +55,7 @@ function Pages({ publicClientApp }) {
                 <Route exact path={viewInvestigatorRoute} element={<GameApp />} />
                 <Route exact path={newInvestigatorRoute} element={<NewInvestigatorForm />} />
                 <Route exact path={logoutRoute} element={<Logout />} />
-                {/* <Route exact path="/investigator/:id/edit" element={<EditInvesigatorForm />} /> */}
+                <Route exact path={editInvestigatorRoute} element={<NewInvestigatorForm />} />
             </Routes>
         </Suspense>
     );

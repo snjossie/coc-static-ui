@@ -39,7 +39,6 @@ export const Talents = [
         name: "Smooth Talker",
         description: "Gain a bonus die to Charm rolls" 
     },
-
     { 
         name: "Hardened",
         description: "Ignores Sanity point loss from attacking other humans, viewing horrific injuries, or the diseased" 
@@ -62,7 +61,7 @@ export const Talents = [
     },
     { 
         name: "Arcane Insight",
-        description: "Halve the time requir4ed to learn spells and gains a bonus die to spell casting rolls" 
+        description: "Halve the time required to learn spells and gains a bonus die to spell casting rolls" 
     },
     { 
         name: "Photographic Memory",
@@ -163,3 +162,13 @@ export const Talents = [
         description: "Always seem to have what they need to hand; may spend 10 Luck points (rather than make Luck roll) to find a certain useful piece of equipment (e.g. a flashlight, length of rope, a weapon, etc.) in their current location" 
     }
 ];
+
+export function getTalentDescription(talentName) { 
+    for (const item of Talents) {
+        if(item.name.toLowerCase() === talentName.toLowerCase()) {
+            return item.description;
+        }
+    }
+
+    return undefined;
+}
